@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.yesaladin_batch;
+package shop.yesaladin.batch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
