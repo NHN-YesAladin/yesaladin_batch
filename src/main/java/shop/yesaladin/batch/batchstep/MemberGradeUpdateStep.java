@@ -37,7 +37,7 @@ public class MemberGradeUpdateStep {
     // 이때 endDate 는 매월 1일이 됩니다.
     @Bean
     @StepScope
-    public JdbcPagingItemReader<MemberPaymentDto> memberPaymentItemReader(
+    public JdbcPagingItemReader<MemberPaymentDto> memberPaymentDtoItemReader(
             @Value("#{jobParameters['startDate']}") String startDate,
             @Value("#{jobParameters['endDate']}") String endDate
     ) throws Exception {
@@ -89,6 +89,8 @@ public class MemberGradeUpdateStep {
     }
 
     // ItemProcessor
+    // 주문 금액에서 결제 취소 금액을 제외한 순수 주문 금액을 계산합니다.
+    // 순수 주문 금액에따라 회원의 등급을 수정합니다.
 
     @Bean
     @StepScope
@@ -106,7 +108,7 @@ public class MemberGradeUpdateStep {
     public Step updateMemberGradeStep() throws Exception {
         return stepBuilderFactory.get("updateMemberGradeStep")
                 .<MemberPaymentDto, MemberPaymentDto>chunk(10)
-                .reader(memberPaymentItemReader(null, null))
+                .reader(memberPaymentDtoItemReader(null, null))
                 .writer(itemWriter())
                 .build();
     }
