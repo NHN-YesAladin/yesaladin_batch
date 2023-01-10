@@ -11,8 +11,7 @@ import lombok.ToString;
 @ToString
 public class MemberPaymentDto {
 
-    private Long memberId;
-    private Long totalAmount;
-    private Long cancelAmount;
+    private long memberId;
+    private long totalPaymentAmount;
 
 }

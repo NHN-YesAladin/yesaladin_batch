@@ -17,8 +17,9 @@ import org.springframework.batch.item.database.support.SqlPagingQueryProviderFac
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import shop.yesaladin.batch.dto.MemberPaymentDto;
+import shop.yesaladin.batch.mapper.MemberPaymentDtoRowMapper;
+import shop.yesaladin.batch.repository.JpaMemberRepository;
 
 /**
  * 매월 1일 전체 회원을 대상으로, 지난달 주문에 대한 회원별 총 주문 금액에 따른 회원의 등급을 수정하는 Batch Step 입니다.
@@ -30,6 +31,7 @@ import shop.yesaladin.batch.dto.MemberPaymentDto;
 @Configuration
 public class MemberGradeUpdateStep {
 
+    private final JpaMemberRepository memberRepository;
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
 
@@ -51,7 +53,8 @@ public class MemberGradeUpdateStep {
                 .queryProvider(pagingQueryProvider())
                 .parameterValues(parameterValues)
                 .pageSize(10)
-                .rowMapper(new BeanPropertyRowMapper<>(MemberPaymentDto.class))
+//                .rowMapper(new BeanPropertyRowMapper<>(MemberPaymentDto.class))
+                .rowMapper(new MemberPaymentDtoRowMapper())
                 .build();
     }
 
@@ -59,11 +62,11 @@ public class MemberGradeUpdateStep {
         SqlPagingQueryProviderFactoryBean factoryBean = new SqlPagingQueryProviderFactoryBean();
 
         Map<String, Order> sortKey = new HashMap<>(1);
-        sortKey.put("total_amount", Order.ASCENDING);
+        sortKey.put("order_amount", Order.ASCENDING);
 
         factoryBean.setDataSource(dataSource);
         factoryBean.setSelectClause(
-                "m.id as member_id, sum(p.total_amount) as total_amount, sum(pc.cancel_amount) as cancel_amount");
+                "m.id as member_id, sum(p.total_amount) as order_amount, sum(pc.cancel_amount) as cancel_amount");
         factoryBean.setFromClause(
                 "payments as p "
                 + "join member_orders as mo on p.order_id = mo.order_id "
@@ -91,6 +94,17 @@ public class MemberGradeUpdateStep {
     // ItemProcessor
     // 주문 금액에서 결제 취소 금액을 제외한 순수 주문 금액을 계산합니다.
     // 순수 주문 금액에따라 회원의 등급을 수정합니다.
+//    @Bean
+//    @StepScope
+//    public ItemProcessor<MemberPaymentDto, Member> memberItemProcessor() {
+//        return item -> {
+//            Long amount = item.getTotalAmount() - item.getCancelAmount();
+//            Member member = memberRepository.findById(item.getMemberId())
+////                    .orElseThrow(() -> new MemberNotFoundException("Member Login Id: " + item.getMemberId()));
+//                    .orElse(null);  // null 을 반환하여 해당 아이템에 대한 스텝 처리 건너뛰기
+//            member.updateMemberGrade(memberGrade);
+//        }
+//    }
 
     @Bean
     @StepScope

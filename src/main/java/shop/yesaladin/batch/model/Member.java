@@ -89,7 +89,7 @@ public class Member {
      * // TODO Member.updateMemberGrade() javadoc 작성
      * @param memberGrade
      */
-    private void updateMemberGrade(MemberGrade memberGrade) {
+    public void updateMemberGrade(MemberGrade memberGrade) {
         this.memberGrade = memberGrade;
     }
 
