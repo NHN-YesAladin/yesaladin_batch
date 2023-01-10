@@ -30,7 +30,6 @@ public class BatchJobConfig {
     public Job job() {
         return jobBuilderFactory
                 .get("manageMemberGradeJob")
-//                .start(resetAllMemberGradeStep)
                 .start(updateMemberGradeStep)
                 .incrementer(new DailyJobTimestamper())
                 .build();

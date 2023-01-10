@@ -13,5 +13,6 @@ public class MemberPaymentDto {
 
     private Long memberId;
     private Long totalAmount;
+    private Long cancelAmount;
 
 }
