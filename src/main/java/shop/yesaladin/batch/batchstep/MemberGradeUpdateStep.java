@@ -9,10 +9,11 @@ import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.PagingQueryProvider;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -104,12 +105,13 @@ public class MemberGradeUpdateStep {
 
     @Bean
     @StepScope
-    public ItemWriter<MemberDto> itemWriter() {
-        return items -> {
-            for (MemberDto item : items) {
-                System.out.println(">> current item = " + item);
-            }
-        };
+    public JdbcBatchItemWriter<MemberDto> itemWriter() {
+        return new JdbcBatchItemWriterBuilder<MemberDto>()
+                .dataSource(dataSource)
+                .sql("UPDATE members SET member_grade_id = :memberGradeId, "
+                        + "point = :point WHERE id = :memberId")
+                .beanMapped()
+                .build();
     }
 
     // javadoc 작성
