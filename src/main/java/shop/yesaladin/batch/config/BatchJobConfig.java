@@ -14,7 +14,7 @@ import shop.yesaladin.batch.config.incrementer.DailyJobTimestamper;
  * Spring Batch 설정 파일입니다.
  *
  * @author 서민지
- * @version 1.0
+ * @since 1.0
  */
 @RequiredArgsConstructor
 @EnableBatchProcessing
@@ -23,14 +23,13 @@ public class BatchJobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private final Step resetAllMemberGradeStep;
-    private final Step updateMemberGradeStep;
+    private final Step updateMemberStep;
 
     @Bean
     public Job job() {
         return jobBuilderFactory
-                .get("manageMemberGradeJob")
-                .start(updateMemberGradeStep)
+                .get("updateMemberJob")
+                .start(updateMemberStep)
                 .incrementer(new DailyJobTimestamper())
                 .build();
     }

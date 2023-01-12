@@ -3,12 +3,15 @@ package shop.yesaladin.batch.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
+/**
+ *
+ * @author 서민지
+ * @since  1.0
+ */
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class MemberDto {
 
     private Long memberId;

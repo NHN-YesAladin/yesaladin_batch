@@ -5,6 +5,11 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 import shop.yesaladin.batch.dto.MemberDto;
 
+/**
+ *
+ * @author 서민지
+ * @since  1.0
+ */
 public class MemberDtoRowMapper implements RowMapper<MemberDto> {
 
     @Override
