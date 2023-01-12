@@ -8,6 +8,7 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
@@ -17,9 +18,9 @@ import org.springframework.batch.item.database.support.SqlPagingQueryProviderFac
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.dto.MemberPaymentDto;
-import shop.yesaladin.batch.mapper.MemberPaymentDtoRowMapper;
-import shop.yesaladin.batch.repository.JpaMemberRepository;
+import shop.yesaladin.batch.dto.MemberDto;
+import shop.yesaladin.batch.mapper.MemberDtoRowMapper;
+import shop.yesaladin.batch.model.MemberGrade;
 
 /**
  * 매월 1일 전체 회원을 대상으로, 지난달 주문에 대한 회원별 총 주문 금액에 따른 회원의 등급을 수정하는 Batch Step 입니다.
@@ -31,7 +32,6 @@ import shop.yesaladin.batch.repository.JpaMemberRepository;
 @Configuration
 public class MemberGradeUpdateStep {
 
-    private final JpaMemberRepository memberRepository;
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
 
@@ -39,7 +39,7 @@ public class MemberGradeUpdateStep {
     // 이때 endDate 는 매월 1일이 됩니다.
     @Bean
     @StepScope
-    public JdbcPagingItemReader<MemberPaymentDto> memberPaymentDtoItemReader(
+    public JdbcPagingItemReader<MemberDto> memberDtoItemReader(
             @Value("#{jobParameters['startDate']}") String startDate,
             @Value("#{jobParameters['endDate']}") String endDate
     ) throws Exception {
@@ -47,46 +47,30 @@ public class MemberGradeUpdateStep {
         parameterValues.put("start_date", startDate);
         parameterValues.put("end_date", endDate);
 
-        return new JdbcPagingItemReaderBuilder<MemberPaymentDto>()
-                .name("memberPaymentItemReader")
+        return new JdbcPagingItemReaderBuilder<MemberDto>().name("memberDtoItemReader")
                 .dataSource(dataSource)
                 .queryProvider(pagingQueryProvider())
                 .parameterValues(parameterValues)
                 .pageSize(10)
-//                .rowMapper(new BeanPropertyRowMapper<>(MemberPaymentDto.class))
-                .rowMapper(new MemberPaymentDtoRowMapper())
+                .rowMapper(new MemberDtoRowMapper())
                 .build();
     }
 
     public PagingQueryProvider pagingQueryProvider() throws Exception {
         SqlPagingQueryProviderFactoryBean factoryBean = new SqlPagingQueryProviderFactoryBean();
-
         Map<String, Order> sortKey = new HashMap<>(1);
-        sortKey.put("order_amount", Order.ASCENDING);
-
+        sortKey.put("member_id", Order.ASCENDING);
         factoryBean.setDataSource(dataSource);
-        factoryBean.setSelectClause(
-                "m.id as member_id, sum(p.total_amount) as order_amount, sum(pc.cancel_amount) as cancel_amount");
-        factoryBean.setFromClause(
-                "payments as p "
-                + "join member_orders as mo on p.order_id = mo.order_id "
-                + "left join payment_cancels as pc on p.id = pc.payment_id "
-                + "right join members as m on mo.member_id = m.id");
-        factoryBean.setWhereClause(
-                "(p.approved_datetime >= :start_date and p.approved_datetime < :end_date) or mo.order_id is null");
-        factoryBean.setGroupClause("m.id");
-        factoryBean.setSortKeys(sortKey);
 
-//        factoryBean.setSelectClause("m.id as member_id, v.total_amount as total_amount");
-//        factoryBean.setFromClause("FROM members as m "
-//                + "left join "
-//                + "(select mo.member_id as mid, sum(p.total_amount) as total_amount "
-//                + "from payments as p "
-//                + "join orders as o on o.id = p.order_id "
-//                + "join member_orders as mo on mo.order_id = o.id "
-//                + "where o.order_datetime >= :start_date and o.order_datetime < :end_date "
-//                + "group by mo.member_id) as v on v.mid = m.id");
-//        factoryBean.setSortKey("v.total_amount");
+        factoryBean.setSelectClause(
+                "select m.id as member_id, m.member_grade_id, m.point, v.total_amount, v.cancel_amount");
+        factoryBean.setFromClause("members as m " + "left join "
+                + "(select mo.member_id as mid, sum(p.total_amount) as total_amount, sum(pc.cancel_amount) as cancel_amount "
+                + "from payments as p " + "left join payment_cancels as pc on p.id = pc.payment_id "
+                + "join member_orders as mo on p.order_id = mo.order_id "
+                + "where p.approved_datetime >= :start_date and p.approved_datetime < :end_date "
+                + "group by mo.member_id) as v on m.id = v.mid");
+        factoryBean.setSortKeys(sortKey);
 
         return factoryBean.getObject();
     }
@@ -94,23 +78,35 @@ public class MemberGradeUpdateStep {
     // ItemProcessor
     // 주문 금액에서 결제 취소 금액을 제외한 순수 주문 금액을 계산합니다.
     // 순수 주문 금액에따라 회원의 등급을 수정합니다.
-//    @Bean
-//    @StepScope
-//    public ItemProcessor<MemberPaymentDto, Member> memberItemProcessor() {
-//        return item -> {
-//            Long amount = item.getTotalAmount() - item.getCancelAmount();
-//            Member member = memberRepository.findById(item.getMemberId())
-////                    .orElseThrow(() -> new MemberNotFoundException("Member Login Id: " + item.getMemberId()));
-//                    .orElse(null);  // null 을 반환하여 해당 아이템에 대한 스텝 처리 건너뛰기
-//            member.updateMemberGrade(memberGrade);
-//        }
-//    }
+    @Bean
+    @StepScope
+    public ItemProcessor<MemberDto, MemberDto> memberItemProcessor() {
+        return item -> {
+            Long amount = item.getTotalPaymentAmount();
+            MemberGrade memberGrade = MemberGrade.PLATINUM;
+
+            if (amount < MemberGrade.BRONZE.getBaseOrderAmount()) {
+                memberGrade = MemberGrade.WHITE;
+            } else if (amount < MemberGrade.SILVER.getBaseOrderAmount()) {
+                memberGrade = MemberGrade.BRONZE;
+            } else if (amount < MemberGrade.GOLD.getBaseOrderAmount()) {
+                memberGrade = MemberGrade.SILVER;
+            } else if (amount < MemberGrade.PLATINUM.getBaseOrderAmount()) {
+                memberGrade = MemberGrade.GOLD;
+            }
+
+            item.updateMemberGrade(memberGrade.getId());
+            item.addPoint(memberGrade.getBaseGivenPoint());
+
+            return item;
+        };
+    }
 
     @Bean
     @StepScope
-    public ItemWriter<MemberPaymentDto> itemWriter() {
+    public ItemWriter<MemberDto> itemWriter() {
         return items -> {
-            for (MemberPaymentDto item : items) {
+            for (MemberDto item : items) {
                 System.out.println(">> current item = " + item);
             }
         };
@@ -121,8 +117,9 @@ public class MemberGradeUpdateStep {
     @JobScope
     public Step updateMemberGradeStep() throws Exception {
         return stepBuilderFactory.get("updateMemberGradeStep")
-                .<MemberPaymentDto, MemberPaymentDto>chunk(10)
-                .reader(memberPaymentDtoItemReader(null, null))
+                .<MemberDto, MemberDto>chunk(10)
+                .reader(memberDtoItemReader(null, null))
+                .processor(memberItemProcessor())
                 .writer(itemWriter())
                 .build();
     }
