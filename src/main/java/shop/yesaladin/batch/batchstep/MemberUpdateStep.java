@@ -124,10 +124,30 @@ public class MemberUpdateStep {
      */
     @Bean
     @StepScope
-    public JdbcBatchItemWriter<MemberDto> memberDtoItemWriter() {
+    public JdbcBatchItemWriter<MemberDto> updateMemberItemWriter() {
         return new JdbcBatchItemWriterBuilder<MemberDto>().dataSource(dataSource)
                 .sql("UPDATE members SET member_grade_id = :memberGradeId, "
                         + "point = :point WHERE id = :memberId")
+                .beanMapped()
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public JdbcBatchItemWriter<MemberDto> insertMemberGradeHistoryItemWriter() {
+        return new JdbcBatchItemWriterBuilder<MemberDto>().dataSource(dataSource)
+                .sql("INSERT INTO member_grade_histories "
+                        + "VALUES (null, now(), :totalPaymentAmount, :memberGradeId, :memberId)")
+                .beanMapped()
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public JdbcBatchItemWriter<MemberDto> insertPointHistoryItemWriter() {
+        return new JdbcBatchItemWriterBuilder<MemberDto>().dataSource(dataSource)
+                .sql("INSERT INTO point_histories "
+                        + "VALUES (null, now(), :totalPaymentAmount, :memberGradeId, :memberId)")
                 .beanMapped()
                 .build();
     }
