@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.config.incrementer;
+package shop.yesaladin.batch.job.incrementer;
 
 import java.util.Date;
 import org.springframework.batch.core.JobParameters;

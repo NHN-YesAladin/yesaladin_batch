@@ -1,5 +1,6 @@
-package shop.yesaladin.batch.batchstep;
+package shop.yesaladin.batch.job.step;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -16,22 +17,24 @@ import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
+import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.batch.item.support.builder.CompositeItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.dto.MemberDto;
-import shop.yesaladin.batch.mapper.MemberDtoRowMapper;
+import shop.yesaladin.batch.dto.MemberGradeDto;
+import shop.yesaladin.batch.mapper.MemberGradeDtoRowMapper;
 import shop.yesaladin.batch.model.MemberGrade;
 
 /**
- * 매월 1일 전체 회원을 대상으로 지난달 주문에 대한 회원별 주문 금액을 산정하여 회원의 등급을 수정, 변경 등급에 따른 포인트를 지급하는 Batch Step 입니다.
+ * 매월 1일 전체 회원을 대상으로 지난달 주문에 대한 회원별 주문 금액을 산정하여 회원의 등급을 수정하는 Batch Step 입니다.
  *
  * @author 서민지
- * @since  1.0
+ * @since 1.0
  */
 @RequiredArgsConstructor
 @Configuration
-public class MemberUpdateStep {
+public class MemberGradeUpdateStep {
 
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
@@ -46,7 +49,7 @@ public class MemberUpdateStep {
      */
     @Bean
     @StepScope
-    public JdbcPagingItemReader<MemberDto> memberDtoItemReader(
+    public JdbcPagingItemReader<MemberGradeDto> memberGradeDtoItemReader(
             @Value("#{jobParameters['startDate']}") String startDate,
             @Value("#{jobParameters['endDate']}") String endDate
     ) throws Exception {
@@ -54,12 +57,13 @@ public class MemberUpdateStep {
         parameterValues.put("start_date", startDate);
         parameterValues.put("end_date", endDate);
 
-        return new JdbcPagingItemReaderBuilder<MemberDto>().name("memberDtoItemReader")
+        return new JdbcPagingItemReaderBuilder<MemberGradeDto>()
+                .name("memberGradeDtoItemReader")
                 .dataSource(dataSource)
                 .queryProvider(pagingQueryProvider())
                 .parameterValues(parameterValues)
                 .pageSize(10)
-                .rowMapper(new MemberDtoRowMapper())
+                .rowMapper(new MemberGradeDtoRowMapper())
                 .build();
     }
 
@@ -76,10 +80,10 @@ public class MemberUpdateStep {
         factoryBean.setDataSource(dataSource);
 
         factoryBean.setSelectClause(
-                "select m.id as member_id, m.member_grade_id, m.point, v.total_amount, v.cancel_amount");
-        factoryBean.setFromClause("members as m " + "left join "
+                "m.id as member_id, v.total_amount - v.cancel_amount as pay_amount");
+        factoryBean.setFromClause("members as m left join "
                 + "(select mo.member_id as mid, sum(p.total_amount) as total_amount, sum(pc.cancel_amount) as cancel_amount "
-                + "from payments as p " + "left join payment_cancels as pc on p.id = pc.payment_id "
+                + "from payments as p left join payment_cancels as pc on p.id = pc.payment_id "
                 + "join member_orders as mo on p.order_id = mo.order_id "
                 + "where p.approved_datetime >= :start_date and p.approved_datetime < :end_date "
                 + "group by mo.member_id) as v on m.id = v.mid");
@@ -89,63 +93,92 @@ public class MemberUpdateStep {
     }
 
     /**
-     * 지난달 순수 주문 금액에 따라 MemberDto 의 회원 등급을 수정, 변경 등급에 따른 포인트를 지급하는 비즈니스 로직을 수행합니다.
+     * 지난달 순수 주문 금액에 따라 MemberGradeDto 의 회원 등급을 수정하는 비즈니스 로직을 수행합니다.
      *
      * @return 회원 정보를 업데이트하는 비즈니스 로직을 수행하는 processor
      */
     @Bean
-    @StepScope
-    public ItemProcessor<MemberDto, MemberDto> memberDtoItemProcessor() {
+    public ItemProcessor<MemberGradeDto, MemberGradeDto> memberGradeDtoItemProcessor() {
         return item -> {
-            Long amount = item.getTotalPaymentAmount();
-            MemberGrade memberGrade = MemberGrade.PLATINUM;
-
-            if (amount < MemberGrade.BRONZE.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.WHITE;
-            } else if (amount < MemberGrade.SILVER.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.BRONZE;
-            } else if (amount < MemberGrade.GOLD.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.SILVER;
-            } else if (amount < MemberGrade.PLATINUM.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.GOLD;
-            }
-
-            item.updateMemberGrade(memberGrade.getId());
-            item.addPoint(memberGrade.getBaseGivenPoint());
+            item.updateMemberGrade(getMemberGradeId(item.getPayAmount()));
 
             return item;
         };
     }
 
+    public int getMemberGradeId(Long payAmount) {
+        MemberGrade memberGrade = MemberGrade.PLATINUM;
+
+        if (payAmount < MemberGrade.BRONZE.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.WHITE;
+        } else if (payAmount < MemberGrade.SILVER.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.BRONZE;
+        } else if (payAmount < MemberGrade.GOLD.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.SILVER;
+        } else if (payAmount < MemberGrade.PLATINUM.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.GOLD;
+        }
+
+        return memberGrade.getId();
+    }
+
     /**
-     * 수정된 회원 등급, 포인트를 데이터베이스의 회원 테이블에 업데이트합니다.
+     * 수정된 회원 등급을 데이터베이스의 회원 테이블에 업데이트합니다.
      *
      * @return 변경된 회원 데이터가 매핑된 sql 쿼리를 담은 writer
      */
     @Bean
-    @StepScope
-    public JdbcBatchItemWriter<MemberDto> memberDtoItemWriter() {
-        return new JdbcBatchItemWriterBuilder<MemberDto>().dataSource(dataSource)
-                .sql("UPDATE members SET member_grade_id = :memberGradeId, "
-                        + "point = :point WHERE id = :memberId")
+    public JdbcBatchItemWriter<MemberGradeDto> updateMemberItemWriter() {
+        return new JdbcBatchItemWriterBuilder<MemberGradeDto>().dataSource(dataSource)
+                .sql("UPDATE members SET member_grade_id = :memberGradeId WHERE id = :memberId")
                 .beanMapped()
                 .build();
     }
 
     /**
-     * 데이터베이스에서 회원과 주문 데이터를 조회하고(by reader) 주문 금액에 따라 회원 데이터를 수정하여(by processor) 이를 데이터베이스에 업데이트하는(writer) Step 입니다.
+     * 회원의 등급 변경 내역을 데이터베이스의 등급 변경 내역 테이블에 저장합니다.
+     *
+     * @return 회원 등급 변경 내역을 삽입하는 sql 쿼리를 담은 writer
+     */
+    @Bean
+    public JdbcBatchItemWriter<MemberGradeDto> insertMemberGradeHistoryItemWriter() {
+        return new JdbcBatchItemWriterBuilder<MemberGradeDto>().dataSource(dataSource)
+                .sql("INSERT INTO member_grade_histories "
+                        + "VALUES (null, now(), :payAmount, :memberGradeId, :memberId)")
+                .beanMapped()
+                .build();
+    }
+
+    /**
+     * Step 의 출력 부분을 구성하는 2개의 writer 를 래핑하는 CompositeItemWriter 입니다.
+     *
+     * @return updateMemberItemWriter, insertMemberGradeHistoryItemWriter 에게 출력을 위임하는 래핑 writer
+     */
+    @Bean
+    public CompositeItemWriter<MemberGradeDto> compositeItemWriter() {
+        return new CompositeItemWriterBuilder<MemberGradeDto>()
+                .delegates(Arrays.asList(
+                        updateMemberItemWriter(),
+                        insertMemberGradeHistoryItemWriter()
+                ))
+                .build();
+    }
+
+    /**
+     * 데이터베이스에서 회원과 주문 데이터를 조회하고(by reader) 주문 금액에 따라 회원 데이터를 수정하여(by processor) 이를 데이터베이스에
+     * 업데이트하는(writer) Step 입니다.
      *
      * @return 지정된 reader, processor, writer 를 가진 updateMemberStep
      * @throws Exception
      */
     @Bean
     @JobScope
-    public Step updateMemberStep() throws Exception {
-        return stepBuilderFactory.get("updateMemberStep")
-                .<MemberDto, MemberDto>chunk(10)
-                .reader(memberDtoItemReader(null, null))
-                .processor(memberDtoItemProcessor())
-                .writer(memberDtoItemWriter())
+    public Step updateMemberGradeStep() throws Exception {
+        return stepBuilderFactory.get("updateMemberGradeStep")
+                .<MemberGradeDto, MemberGradeDto>chunk(10)
+                .reader(memberGradeDtoItemReader(null, null))
+                .processor(memberGradeDtoItemProcessor())
+                .writer(compositeItemWriter())
                 .build();
     }
 }
