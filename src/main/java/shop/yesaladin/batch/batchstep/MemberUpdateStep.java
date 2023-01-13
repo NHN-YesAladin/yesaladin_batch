@@ -60,6 +60,7 @@ public class MemberUpdateStep {
                 .parameterValues(parameterValues)
                 .pageSize(10)
                 .rowMapper(new MemberDtoRowMapper())
+//                .rowMapper(new BeanPropertyRowMapper<>(MemberDto.class))
                 .build();
     }
 
@@ -76,10 +77,10 @@ public class MemberUpdateStep {
         factoryBean.setDataSource(dataSource);
 
         factoryBean.setSelectClause(
-                "select m.id as member_id, m.member_grade_id, m.point, v.total_amount, v.cancel_amount");
-        factoryBean.setFromClause("members as m " + "left join "
+                "select m.id as member_id, v.total_amount - v.cancel_amount as pay_amount");
+        factoryBean.setFromClause("members as m left join "
                 + "(select mo.member_id as mid, sum(p.total_amount) as total_amount, sum(pc.cancel_amount) as cancel_amount "
-                + "from payments as p " + "left join payment_cancels as pc on p.id = pc.payment_id "
+                + "from payments as p left join payment_cancels as pc on p.id = pc.payment_id "
                 + "join member_orders as mo on p.order_id = mo.order_id "
                 + "where p.approved_datetime >= :start_date and p.approved_datetime < :end_date "
                 + "group by mo.member_id) as v on m.id = v.mid");
@@ -97,7 +98,8 @@ public class MemberUpdateStep {
     @StepScope
     public ItemProcessor<MemberDto, MemberDto> memberDtoItemProcessor() {
         return item -> {
-            Long amount = item.getTotalPaymentAmount();
+            Long amount = item.getPayAmount();
+            System.out.println(amount);
             MemberGrade memberGrade = MemberGrade.PLATINUM;
 
             if (amount < MemberGrade.BRONZE.getBaseOrderAmount()) {
@@ -111,14 +113,14 @@ public class MemberUpdateStep {
             }
 
             item.updateMemberGrade(memberGrade.getId());
-            item.addPoint(memberGrade.getBaseGivenPoint());
+            item.setMemberGradePoint(memberGrade.getBaseGivenPoint());
 
             return item;
         };
     }
 
     /**
-     * 수정된 회원 등급, 포인트를 데이터베이스의 회원 테이블에 업데이트합니다.
+     * 수정된 회원 등급을 데이터베이스의 회원 테이블에 업데이트합니다.
      *
      * @return 변경된 회원 데이터가 매핑된 sql 쿼리를 담은 writer
      */
@@ -126,8 +128,7 @@ public class MemberUpdateStep {
     @StepScope
     public JdbcBatchItemWriter<MemberDto> updateMemberItemWriter() {
         return new JdbcBatchItemWriterBuilder<MemberDto>().dataSource(dataSource)
-                .sql("UPDATE members SET member_grade_id = :memberGradeId, "
-                        + "point = :point WHERE id = :memberId")
+                .sql("UPDATE members SET member_grade_id = :memberGradeId WHERE id = :memberId")
                 .beanMapped()
                 .build();
     }
@@ -137,7 +138,7 @@ public class MemberUpdateStep {
     public JdbcBatchItemWriter<MemberDto> insertMemberGradeHistoryItemWriter() {
         return new JdbcBatchItemWriterBuilder<MemberDto>().dataSource(dataSource)
                 .sql("INSERT INTO member_grade_histories "
-                        + "VALUES (null, now(), :totalPaymentAmount, :memberGradeId, :memberId)")
+                        + "VALUES (null, now(), :payAmount, :memberGradeId, :memberId)")
                 .beanMapped()
                 .build();
     }
@@ -147,7 +148,7 @@ public class MemberUpdateStep {
     public JdbcBatchItemWriter<MemberDto> insertPointHistoryItemWriter() {
         return new JdbcBatchItemWriterBuilder<MemberDto>().dataSource(dataSource)
                 .sql("INSERT INTO point_histories "
-                        + "VALUES (null, now(), :totalPaymentAmount, :memberGradeId, :memberId)")
+                        + "VALUES (null, :memberGradePoint, now(), 2, :memberId)")
                 .beanMapped()
                 .build();
     }
@@ -165,7 +166,7 @@ public class MemberUpdateStep {
                 .<MemberDto, MemberDto>chunk(10)
                 .reader(memberDtoItemReader(null, null))
                 .processor(memberDtoItemProcessor())
-                .writer(memberDtoItemWriter())
+                .writer(updateMemberItemWriter())
                 .build();
     }
 }

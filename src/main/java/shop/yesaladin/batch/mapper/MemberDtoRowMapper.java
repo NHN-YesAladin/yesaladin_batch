@@ -18,12 +18,10 @@ public class MemberDtoRowMapper implements RowMapper<MemberDto> {
         MemberDto memberDto = new MemberDto();
 
         memberDto.setMemberId(rs.getLong("member_id"));
-        memberDto.setMemberGradeId(rs.getInt("member_grade_id"));
-        memberDto.setPoint(rs.getLong("point"));
-
-        Long totalAmount = rs.getLong("total_amount");
-        Long cancelAmount = rs.getLong("cancel_amount");
-        memberDto.setTotalPaymentAmount(totalAmount - cancelAmount);
+//        Long totalAmount = rs.getLong("total_amount");
+//        Long cancelAmount = rs.getLong("cancel_amount");
+//        memberDto.setPayAmount(totalAmount - cancelAmount);
+        memberDto.setPayAmount(rs.getLong("pay_amount"));
 
         return memberDto;
     }

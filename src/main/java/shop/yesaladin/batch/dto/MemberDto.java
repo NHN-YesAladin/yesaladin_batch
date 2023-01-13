@@ -16,15 +16,11 @@ import lombok.Setter;
 public class MemberDto {
 
     private Long memberId;
+    private Long payAmount;
     private Integer memberGradeId;
-    private Long point;
-    private Long totalPaymentAmount;
+    private Long memberGradePoint;
 
     public void updateMemberGrade(int memberGradeId) {
         this.memberGradeId = memberGradeId;
-    }
-
-    public void addPoint(long point) {
-        this.point += point;
     }
 }
