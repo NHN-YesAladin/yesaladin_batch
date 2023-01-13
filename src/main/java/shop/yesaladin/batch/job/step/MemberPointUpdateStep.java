@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import shop.yesaladin.batch.dto.MemberPointDto;
+import shop.yesaladin.batch.model.MemberGrade;
 
 /**
  * 매월 1일 지난달 주문 금액에 따라 변경된 회원 등급을 참조하여 회원 등급별 포인트를 지급하는 Batch Step 입니다.
@@ -30,6 +31,7 @@ import shop.yesaladin.batch.dto.MemberPointDto;
 public class MemberPointUpdateStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private final int minMemberGradeId = MemberGrade.WHITE.getId();
 
     /**
      * 회원 id, 회원 등급 id, 해당 등급별 지급 포인트를 페이지 단위로 읽어옵니다.
@@ -64,7 +66,7 @@ public class MemberPointUpdateStep {
                 "m.id as member_id, mg.base_given_point as member_grade_point");
         factoryBean.setFromClause("members as m "
                 + "inner join member_grades as mg on m.member_grade_id = mg.id");
-        factoryBean.setWhereClause("mg.id > 1");
+        factoryBean.setWhereClause("mg.id > " + minMemberGradeId);
         factoryBean.setSortKeys(sortKey);
 
         return factoryBean.getObject();
@@ -85,7 +87,7 @@ public class MemberPointUpdateStep {
     }
 
     /**
-     * 데이터베이스에서 회원과 등급별 지급 포인트 데이터를 조회하고(by reader) 지급 포인트 내역을 데이터베이스에 삽입하는(writer) Step 입니다.
+     * 데이터베이스에서 회원과 등급별 지급 포인트 데이터를 조회하고(by reader) 지급 포인트 내역을 데이터베이스에 삽입하는(by writer) Step 입니다.
      *
      * @return 지정된 reader, writer 를 가진 updateMemberStep
      * @throws Exception
