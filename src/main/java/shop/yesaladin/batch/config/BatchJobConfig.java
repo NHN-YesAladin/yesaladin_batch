@@ -21,13 +21,15 @@ import shop.yesaladin.batch.config.incrementer.DailyJobTimestamper;
 public class BatchJobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
-    private final Step updateMemberStep;
+    private final Step updateMemberGradeStep;
+    private final Step updateMemberPointStep;
 
     @Bean
     public Job job() {
         return jobBuilderFactory
                 .get("updateMemberJob")
-                .start(updateMemberStep)
+                .start(updateMemberGradeStep)
+                .next(updateMemberPointStep)
                 .incrementer(new DailyJobTimestamper())
                 .build();
     }

@@ -13,12 +13,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MemberDto {
+public class MemberGradeDto {
 
     private Long memberId;
     private Long payAmount;
     private Integer memberGradeId;
-    private Long memberGradePoint;
 
     public void updateMemberGrade(int memberGradeId) {
         this.memberGradeId = memberGradeId;
