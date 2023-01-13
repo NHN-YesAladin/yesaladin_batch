@@ -19,6 +19,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import shop.yesaladin.batch.dto.MemberPointDto;
 
+/**
+ * 매월 1일 지난달 주문 금액에 따라 변경된 회원 등급을 참조하여 회원 등급별 포인트를 지급하는 Batch Step 입니다.
+ *
+ * @author 서민지
+ * @since 1.0
+ */
 @RequiredArgsConstructor
 @Configuration
 public class MemberPointUpdateStep {
@@ -26,7 +32,7 @@ public class MemberPointUpdateStep {
     private final DataSource dataSource;
 
     /**
-     * 회원 정보와 조회 기간에 대한 주문 및 결제 취소 금액을 페이지 단위로 읽어옵니다.
+     * 회원 id, 회원 등급 id, 해당 등급별 지급 포인트를 페이지 단위로 읽어옵니다.
      *
      * @return 데이터베이스에서 회원 정보를 page size 단위로 조회하는 reader
      * @throws Exception
@@ -43,7 +49,7 @@ public class MemberPointUpdateStep {
     }
 
     /**
-     * 회원, 주문, 결제 관련 테이블을 조인하여 회원 정보와 지정된 조회 기간에 대한 주문 및 결제 취소 금액을 page size 단위로 조회하는 쿼리를 작성합니다.
+     * 회원, 회원 등급 테이블을 조인하여 회원 정보와 등급별 지급 포인트를 page size 단위로 조회하는 쿼리를 작성합니다.
      *
      * @return 지정된 데이터베이스 유형에 적합한 PagingQueryProvider 인스턴스
      * @throws Exception 데이터베이스 유형을 결정하지 못할 경우 예외
@@ -64,6 +70,11 @@ public class MemberPointUpdateStep {
         return factoryBean.getObject();
     }
 
+    /**
+     * 회원 등급에 맞는 지급 포인트 내역을 데이터베이스의 포인트 내역 테이블에 저장합니다.
+     *
+     * @return 회원별 지급 포인트 내역을 삽입하는 sql 쿼리를 담은 writer
+     */
     public JdbcBatchItemWriter<MemberPointDto> insertPointHistoryItemWriter() {
         return new JdbcBatchItemWriterBuilder<MemberPointDto>()
                 .dataSource(dataSource)
@@ -74,10 +85,9 @@ public class MemberPointUpdateStep {
     }
 
     /**
-     * 데이터베이스에서 회원과 주문 데이터를 조회하고(by reader) 주문 금액에 따라 회원 데이터를 수정하여(by processor) 이를 데이터베이스에
-     * 업데이트하는(writer) Step 입니다.
+     * 데이터베이스에서 회원과 등급별 지급 포인트 데이터를 조회하고(by reader) 지급 포인트 내역을 데이터베이스에 삽입하는(writer) Step 입니다.
      *
-     * @return 지정된 reader, processor, writer 를 가진 updateMemberStep
+     * @return 지정된 reader, writer 를 가진 updateMemberStep
      * @throws Exception
      */
     @Bean

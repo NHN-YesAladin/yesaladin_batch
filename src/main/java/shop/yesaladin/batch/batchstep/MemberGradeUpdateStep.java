@@ -27,7 +27,7 @@ import shop.yesaladin.batch.mapper.MemberGradeDtoRowMapper;
 import shop.yesaladin.batch.model.MemberGrade;
 
 /**
- * 매월 1일 전체 회원을 대상으로 지난달 주문에 대한 회원별 주문 금액을 산정하여 회원의 등급을 수정, 변경 등급에 따른 포인트를 지급하는 Batch Step 입니다.
+ * 매월 1일 전체 회원을 대상으로 지난달 주문에 대한 회원별 주문 금액을 산정하여 회원의 등급을 수정하는 Batch Step 입니다.
  *
  * @author 서민지
  * @since 1.0
@@ -64,7 +64,6 @@ public class MemberGradeUpdateStep {
                 .parameterValues(parameterValues)
                 .pageSize(10)
                 .rowMapper(new MemberGradeDtoRowMapper())
-//                .rowMapper(new BeanPropertyRowMapper<>(MemberDto.class))
                 .build();
     }
 
@@ -81,7 +80,7 @@ public class MemberGradeUpdateStep {
         factoryBean.setDataSource(dataSource);
 
         factoryBean.setSelectClause(
-                "select m.id as member_id, v.total_amount - v.cancel_amount as pay_amount");
+                "m.id as member_id, v.total_amount - v.cancel_amount as pay_amount");
         factoryBean.setFromClause("members as m left join "
                 + "(select mo.member_id as mid, sum(p.total_amount) as total_amount, sum(pc.cancel_amount) as cancel_amount "
                 + "from payments as p left join payment_cancels as pc on p.id = pc.payment_id "
@@ -94,7 +93,7 @@ public class MemberGradeUpdateStep {
     }
 
     /**
-     * 지난달 순수 주문 금액에 따라 MemberDto 의 회원 등급을 수정, 변경 등급에 따른 포인트를 지급하는 비즈니스 로직을 수행합니다.
+     * 지난달 순수 주문 금액에 따라 MemberGradeDto 의 회원 등급을 수정하는 비즈니스 로직을 수행합니다.
      *
      * @return 회원 정보를 업데이트하는 비즈니스 로직을 수행하는 processor
      */
@@ -133,6 +132,11 @@ public class MemberGradeUpdateStep {
                 .build();
     }
 
+    /**
+     * 회원의 등급 변경 내역을 데이터베이스의 등급 변경 내역 테이블에 저장합니다.
+     *
+     * @return 회원 등급 변경 내역을 삽입하는 sql 쿼리를 담은 writer
+     */
     @Bean
     public JdbcBatchItemWriter<MemberGradeDto> insertMemberGradeHistoryItemWriter() {
         return new JdbcBatchItemWriterBuilder<MemberGradeDto>().dataSource(dataSource)
@@ -142,6 +146,11 @@ public class MemberGradeUpdateStep {
                 .build();
     }
 
+    /**
+     * Step 의 출력 부분을 구성하는 2개의 writer 를 래핑하는 CompositeItemWriter 입니다.
+     *
+     * @return updateMemberItemWriter, insertMemberGradeHistoryItemWriter 에게 출력을 위임하는 래핑 writer
+     */
     @Bean
     public CompositeItemWriter<MemberGradeDto> compositeItemWriter() {
         return new CompositeItemWriterBuilder<MemberGradeDto>()
