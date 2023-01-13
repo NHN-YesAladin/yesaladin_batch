@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.batchstep;
+package shop.yesaladin.batch.job.step;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -100,23 +100,26 @@ public class MemberGradeUpdateStep {
     @Bean
     public ItemProcessor<MemberGradeDto, MemberGradeDto> memberGradeDtoItemProcessor() {
         return item -> {
-            Long amount = item.getPayAmount();
-            MemberGrade memberGrade = MemberGrade.PLATINUM;
-
-            if (amount < MemberGrade.BRONZE.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.WHITE;
-            } else if (amount < MemberGrade.SILVER.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.BRONZE;
-            } else if (amount < MemberGrade.GOLD.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.SILVER;
-            } else if (amount < MemberGrade.PLATINUM.getBaseOrderAmount()) {
-                memberGrade = MemberGrade.GOLD;
-            }
-
-            item.updateMemberGrade(memberGrade.getId());
+            item.updateMemberGrade(getMemberGradeId(item.getPayAmount()));
 
             return item;
         };
+    }
+
+    public int getMemberGradeId(Long payAmount) {
+        MemberGrade memberGrade = MemberGrade.PLATINUM;
+
+        if (payAmount < MemberGrade.BRONZE.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.WHITE;
+        } else if (payAmount < MemberGrade.SILVER.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.BRONZE;
+        } else if (payAmount < MemberGrade.GOLD.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.SILVER;
+        } else if (payAmount < MemberGrade.PLATINUM.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.GOLD;
+        }
+
+        return memberGrade.getId();
     }
 
     /**

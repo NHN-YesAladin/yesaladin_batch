@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.batchstep;
+package shop.yesaladin.batch.job.step;
 
 import java.util.HashMap;
 import java.util.Map;

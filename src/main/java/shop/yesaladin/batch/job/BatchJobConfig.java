@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.config;
+package shop.yesaladin.batch.job;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -7,7 +7,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.config.incrementer.DailyJobTimestamper;
+import shop.yesaladin.batch.job.incrementer.DailyJobTimestamper;
 
 /**
  * Spring Batch 설정 파일입니다.
