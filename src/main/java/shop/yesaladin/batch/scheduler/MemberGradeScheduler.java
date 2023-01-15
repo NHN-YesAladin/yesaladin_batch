@@ -47,8 +47,8 @@ public class MemberGradeScheduler {
         );
 
         JobParameters jobParameters = new JobParametersBuilder()
-                .addString("start_date", inquiryStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                .addString("end_date", inquiryEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .addString("startDate", inquiryStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .addString("endDate", inquiryEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .toJobParameters();
 
         try {
