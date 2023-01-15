@@ -15,7 +15,6 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import shop.yesaladin.batch.job.BatchJobConfig;
 
 /**
  * 회원 등급을 관리하는 Job 의 스케줄러 입니다.
@@ -28,7 +27,7 @@ import shop.yesaladin.batch.job.BatchJobConfig;
 @Component
 public class MemberGradeScheduler {
 
-    private final BatchJobConfig jobConfig;
+    private final Job updateMemberJob;
     private final JobLauncher jobLauncher;
     private static final String TWO_AM_1ST_OF_EVERY_MONTH = "0 0 2 1 1/1 ? *";
 
@@ -47,7 +46,6 @@ public class MemberGradeScheduler {
                 inquiryEndDate
         );
 
-        Job updateMemberJob = jobConfig.updateMemberJob();
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("start_date", inquiryStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .addString("end_date", inquiryEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
