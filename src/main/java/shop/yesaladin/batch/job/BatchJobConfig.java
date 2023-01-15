@@ -1,5 +1,6 @@
 package shop.yesaladin.batch.job;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -10,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import shop.yesaladin.batch.job.incrementer.DailyJobTimestamper;
 
 /**
- * Spring Batch 설정 파일입니다.
+ * Spring Batch 설정 입니다.
  *
  * @author 서민지
  * @since 1.0
@@ -24,10 +25,15 @@ public class BatchJobConfig {
     private final Step updateMemberGradeStep;
     private final Step updateMemberPointStep;
 
+    /**
+     * 지난달 주문 금액에 따라 회원의 등급을 수정하는 step 과 등급별 포인트를 지급하는 step 을 수행하는 Job 입니다.
+     *
+     * @return 2개의 step 을 실행하는 updateMemberJob
+     */
     @Bean
-    public Job job() {
+    public Job updateMemberJob() {
         return jobBuilderFactory
-                .get("updateMemberJob")
+                .get(LocalDateTime.now() + "_updateMemberJob")
                 .start(updateMemberGradeStep)
                 .next(updateMemberPointStep)
                 .incrementer(new DailyJobTimestamper())
