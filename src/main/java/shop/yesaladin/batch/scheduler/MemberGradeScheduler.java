@@ -29,7 +29,7 @@ public class MemberGradeScheduler {
 
     private final Job updateMemberJob;
     private final JobLauncher jobLauncher;
-    private static final String TWO_AM_1ST_OF_EVERY_MONTH = "0 0 2 1 1/1 ? *";
+    private static final String TWO_AM_1ST_OF_EVERY_MONTH = "0 0 2 1 1/1 ?";
 
     /**
      * 매월 1일 02시에 조회 시작일(지난달 1일), 조회 마지막일(이번달 1일) 파라미터를 갖는 updateMemberGradeJob 을 실행합니다.
