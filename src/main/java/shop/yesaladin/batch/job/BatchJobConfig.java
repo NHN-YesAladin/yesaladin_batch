@@ -1,6 +1,5 @@
 package shop.yesaladin.batch.job;
 
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -8,7 +7,6 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.job.incrementer.DailyJobTimestamper;
 
 /**
  * Spring Batch 설정 입니다.
@@ -33,10 +31,9 @@ public class BatchJobConfig {
     @Bean
     public Job updateMemberJob() {
         return jobBuilderFactory
-                .get(LocalDateTime.now() + "_updateMemberJob")
+                .get("updateMemberJob")
                 .start(updateMemberGradeStep)
                 .next(updateMemberPointStep)
-                .incrementer(new DailyJobTimestamper())
                 .build();
     }
 }
