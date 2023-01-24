@@ -53,4 +53,12 @@ public class BatchJobConfig {
                 .validator(validator())
                 .build();
     }
+
+    @Bean
+    public Job giveBirthdayCouponJob() {
+        return jobBuilderFactory
+                .get("giveBirthdayCouponJob")
+                .start(updateMemberGradeStep)
+                .build();
+    }
 }
