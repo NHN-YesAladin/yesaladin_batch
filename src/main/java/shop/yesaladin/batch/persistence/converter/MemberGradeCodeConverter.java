@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import shop.yesaladin.shop.member.domain.model.MemberGrade;
+import shop.yesaladin.batch.model.MemberGrade;
 
 /**
  * 회원의 등급을 변환하기 위한 컨버터 클래스 입니다.

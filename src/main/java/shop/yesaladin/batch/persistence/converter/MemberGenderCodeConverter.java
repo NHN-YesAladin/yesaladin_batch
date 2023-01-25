@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import shop.yesaladin.shop.member.domain.model.MemberGenderCode;
+import shop.yesaladin.batch.model.MemberGenderCode;
 
 
 /**
