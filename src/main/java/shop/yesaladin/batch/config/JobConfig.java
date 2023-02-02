@@ -1,5 +1,7 @@
 package shop.yesaladin.batch.config;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersValidator;
@@ -19,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @EnableBatchProcessing
 @Configuration
-public class BatchJobConfig {
+public class JobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final Step updateMemberGradeStep;
@@ -43,22 +45,26 @@ public class BatchJobConfig {
     /**
      * 지난달 주문 금액에 따라 회원의 등급을 수정하는 step 과 등급별 포인트를 지급하는 step 을 수행하는 Job 입니다.
      *
-     * @return 2개의 step 을 실행하는 updateMemberJob
+     * @return updateMemberGradeStep, updateMemberPointStep 을 실행하는 Job
      */
     @Bean
     public Job updateMemberJob() {
         return jobBuilderFactory
-                .get("updateMemberJob")
+                .get("updateMemberJob" + LocalDate.now().format(DateTimeFormatter.ISO_DATE))
                 .start(updateMemberGradeStep)
                 .next(updateMemberPointStep)
                 .validator(validator())
                 .build();
     }
 
+    /**
+     * 생일 회원을 조회하여 쿠폰을 지급하는 Step 을 수행하는 Job 입니다.
+     * @return giveBirthdayCouponStep 을 실행하는 Job
+     */
     @Bean
     public Job giveBirthdayCouponJob() {
         return jobBuilderFactory
-                .get("giveBirthdayCouponJob")
+                .get("giveBirthdayCouponJob" + LocalDate.now().format(DateTimeFormatter.ISO_DATE))
                 .start(giveBirthdayCouponStep)
                 .build();
     }
