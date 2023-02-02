@@ -21,8 +21,6 @@ public class MemberGenderCodeConverter implements AttributeConverter<MemberGende
      *
      * @param memberGenderCode 회원성별코드
      * @return 회원성별코드의 Id
-     * @author 송학현
-     * @since 1.0
      */
     @Override
     public Integer convertToDatabaseColumn(MemberGenderCode memberGenderCode) {
@@ -34,8 +32,6 @@ public class MemberGenderCodeConverter implements AttributeConverter<MemberGende
      *
      * @param gender 회원성별코드의 Id
      * @return 회원성별코드
-     * @author 송학현
-     * @since 1.0
      */
     @Override
     public MemberGenderCode convertToEntityAttribute(Integer gender) {

@@ -3,7 +3,6 @@ package shop.yesaladin.batch.batch.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-
 /**
  * 회원의 성별 코드에 대한 클래스입니다.
  *

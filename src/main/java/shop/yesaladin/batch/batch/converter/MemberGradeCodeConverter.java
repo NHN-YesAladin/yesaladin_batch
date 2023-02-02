@@ -20,8 +20,6 @@ public class MemberGradeCodeConverter implements AttributeConverter<MemberGrade,
      *
      * @param memberGrade 회원 등급
      * @return 회원 등급의 Id
-     * @author 송학현
-     * @since 1.0
      */
     @Override
     public Integer convertToDatabaseColumn(MemberGrade memberGrade) {
@@ -34,8 +32,6 @@ public class MemberGradeCodeConverter implements AttributeConverter<MemberGrade,
      *
      * @param id
      * @return 회원등급
-     * @author 송학현
-     * @since 1.0
      */
     @Override
     public MemberGrade convertToEntityAttribute(Integer id) {
