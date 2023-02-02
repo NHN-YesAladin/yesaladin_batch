@@ -93,19 +93,7 @@ public class BirthdayCouponStep {
      */
     @Bean
     public ItemWriter<MemberCouponRequestDto> itemWriter() {
-        return items -> {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<? extends List<? extends MemberCouponRequestDto>> request = new HttpEntity<>(items,
-                    headers
-            );
-
-            restTemplate.exchange(serverMetaConfig.getShopServerUrl() + "/v1/coupons",
-                    HttpMethod.POST,
-                    request,
-                    new ParameterizedTypeReference<>() {}
-            );
-        };
+        return this::registerMemberCoupon;
     }
 
     /**
@@ -170,6 +158,26 @@ public class BirthdayCouponStep {
         );
 
         return Objects.requireNonNull(responseEntity.getBody()).getData();
+    }
+
+    /**
+     * Shop 서버에게 회원 쿠폰 등록을 요청합니다.
+     *
+     * @param items 회원 쿠폰 등록 요청 리스트
+     */
+    private void registerMemberCoupon(List<? extends MemberCouponRequestDto> items) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<? extends List<? extends MemberCouponRequestDto>> request = new HttpEntity<>(
+                items,
+                headers
+        );
+
+        restTemplate.exchange(serverMetaConfig.getShopServerUrl() + "/v1/coupons",
+                HttpMethod.POST,
+                request,
+                new ParameterizedTypeReference<>() {}
+        );
     }
 
     /**
