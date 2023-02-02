@@ -31,7 +31,7 @@ public class BirthdayCouponScheduler {
     private final int LATER_DAYS = 7;
 
     /**
-     * 매월 02시에 조회 시작일(지난달 1일), 조회 마지막일(이번달 1일) 파라미터를 갖는 updateMemberGradeJob 을 실행합니다.
+     * 매월 01시에 laterDays 파라미터를 갖는 giveBirthdayCouponJob 을 실행합니다.
      */
     @Scheduled(cron = ONE_AM_EVERY_DAY, zone = "Asia/Seoul")
     public void scheduleGiveBirthdayCoupon() {
