@@ -65,7 +65,7 @@ public class BirthdayCouponStep {
             log.info("=== Birthday membership list is empty. ===");
             return null;
         }
-        setBirthdayCouponResponseDtoList(memberList.size());
+        requestBirthdayCoupon(memberList.size());
         return new ListItemReader<>(memberList);
     }
 
@@ -101,7 +101,7 @@ public class BirthdayCouponStep {
      *
      * @param quantity 요청하는 수량
      */
-    private void setBirthdayCouponResponseDtoList(int quantity) {
+    private void requestBirthdayCoupon(int quantity) {
         CouponRequestDto couponRequestDto = new CouponRequestDto(TriggerTypeCode.BIRTHDAY,
                 quantity
         );
