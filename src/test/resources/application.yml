@@ -1,0 +1,27 @@
+eureka:
+  client:
+    enabled: false
+  cloud:
+    config:
+      enabled: false
+  jpa:
+    open-in-view: false
+    show-sql: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://133.186.151.141:3306/yesaladin_batch_test
+    username: yesaladin
+    password: PR7QyDl]Ojwaw7Y@
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
+yesaladin:
+  shop:
+    url: http://localhost:8080
+  coupon:
+    url: http://localhost:8085

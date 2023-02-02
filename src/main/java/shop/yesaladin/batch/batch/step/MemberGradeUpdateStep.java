@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.job.step;
+package shop.yesaladin.batch.batch.step;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,9 +22,9 @@ import org.springframework.batch.item.support.builder.CompositeItemWriterBuilder
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.dto.MemberGradeDto;
-import shop.yesaladin.batch.mapper.MemberGradeDtoRowMapper;
-import shop.yesaladin.batch.model.MemberGrade;
+import shop.yesaladin.batch.batch.dto.MemberGradeDto;
+import shop.yesaladin.batch.batch.mapper.MemberGradeDtoRowMapper;
+import shop.yesaladin.batch.batch.model.MemberGrade;
 
 /**
  * 매월 1일 전체 회원을 대상으로 지난달 주문에 대한 회원별 주문 금액을 산정하여 회원의 등급을 수정하는 Batch Step 입니다.

@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.model;
+package shop.yesaladin.batch.batch.model;
 
 import java.time.LocalDate;
 import javax.persistence.Column;
@@ -13,8 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import shop.yesaladin.batch.persistence.converter.MemberGenderCodeConverter;
-import shop.yesaladin.batch.persistence.converter.MemberGradeCodeConverter;
+import shop.yesaladin.batch.batch.converter.MemberGenderCodeConverter;
+import shop.yesaladin.batch.batch.converter.MemberGradeCodeConverter;
 
 /**
  * 회원의 엔티티 클래스 입니다.

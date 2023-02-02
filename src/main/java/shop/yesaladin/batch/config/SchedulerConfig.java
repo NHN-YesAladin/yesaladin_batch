@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.scheduler;
+package shop.yesaladin.batch.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;

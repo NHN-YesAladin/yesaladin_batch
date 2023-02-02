@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.dto;
+package shop.yesaladin.batch.batch.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

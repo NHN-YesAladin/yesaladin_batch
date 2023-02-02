@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.job;
+package shop.yesaladin.batch.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -24,6 +24,7 @@ public class BatchJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final Step updateMemberGradeStep;
     private final Step updateMemberPointStep;
+    private final Step giveBirthdayCouponStep;
 
     /**
      * updateMemberJob 의 필수 파라미터를 지정하는 validator 입니다.
@@ -58,7 +59,7 @@ public class BatchJobConfig {
     public Job giveBirthdayCouponJob() {
         return jobBuilderFactory
                 .get("giveBirthdayCouponJob")
-                .start(updateMemberGradeStep)
+                .start(giveBirthdayCouponStep)
                 .build();
     }
 }

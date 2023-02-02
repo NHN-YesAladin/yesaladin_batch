@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.model;
+package shop.yesaladin.batch.batch.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
