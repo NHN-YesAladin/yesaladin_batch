@@ -38,6 +38,7 @@ public class MemberGradeUpdateStep {
 
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private static final int CHUNK_SIZE = 100;
 
     /**
      * 회원 정보와 조회 기간에 대한 주문 및 결제 취소 금액을 페이지 단위로 읽어옵니다.
@@ -62,7 +63,7 @@ public class MemberGradeUpdateStep {
                 .dataSource(dataSource)
                 .queryProvider(pagingQueryProvider())
                 .parameterValues(parameterValues)
-                .pageSize(10)
+                .pageSize(CHUNK_SIZE)
                 .rowMapper(new MemberGradeDtoRowMapper())
                 .build();
     }
@@ -175,7 +176,7 @@ public class MemberGradeUpdateStep {
     @JobScope
     public Step updateMemberGradeStep() throws Exception {
         return stepBuilderFactory.get("updateMemberGradeStep")
-                .<MemberGradeDto, MemberGradeDto>chunk(10)
+                .<MemberGradeDto, MemberGradeDto>chunk(CHUNK_SIZE)
                 .reader(memberGradeDtoItemReader(null, null))
                 .processor(memberGradeDtoItemProcessor())
                 .writer(compositeItemWriter())

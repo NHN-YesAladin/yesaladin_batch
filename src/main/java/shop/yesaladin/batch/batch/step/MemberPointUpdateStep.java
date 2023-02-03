@@ -31,6 +31,7 @@ import shop.yesaladin.batch.batch.model.MemberGrade;
 public class MemberPointUpdateStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private static final int CHUNK_SIZE = 100;
     private final int minMemberGradeId = MemberGrade.WHITE.getId();
 
     /**
@@ -45,7 +46,7 @@ public class MemberPointUpdateStep {
                 .name("memberPointDtoItemReader")
                 .dataSource(dataSource)
                 .queryProvider(pagingQueryProvider())
-                .pageSize(10)
+                .pageSize(CHUNK_SIZE)
                 .rowMapper(new BeanPropertyRowMapper<>(MemberPointDto.class))
                 .build();
     }
@@ -97,7 +98,7 @@ public class MemberPointUpdateStep {
     public Step updateMemberPointStep() throws Exception {
         return stepBuilderFactory
                 .get("updateMemberPointStep")
-                .<MemberPointDto, MemberPointDto>chunk(10)
+                .<MemberPointDto, MemberPointDto>chunk(CHUNK_SIZE)
                 .reader(memberPointDtoItemReader())
                 .writer(insertPointHistoryItemWriter())
                 .build();

@@ -29,7 +29,7 @@ public class BirthdayCouponScheduler {
     private final Job giveBirthdayCouponJob;
     private final JobLauncher jobLauncher;
     private static final String ONE_AM_EVERY_DAY = "0 0 1 * * *";
-    private final int LATER_DAYS = 7;
+    private static final int LATER_DAYS = 7;
 
     /**
      * 매월 01시에 laterDays 파라미터를 갖는 giveBirthdayCouponJob 을 실행합니다.

@@ -46,7 +46,7 @@ public class BirthdayCouponStep {
     private final ServerMetaConfig serverMetaConfig;
     private List<CouponResponseDto> couponResponseDtoList;
     private int currentIndex = 0;
-    private final int CHUNK_SIZE = 500;
+    private static final int CHUNK_SIZE = 500;
 
     /**
      * n 일 후가 생일인 회원을 조회합니다. 조회한 생일 회원이 없는 경우 null 을 반환합니다.
