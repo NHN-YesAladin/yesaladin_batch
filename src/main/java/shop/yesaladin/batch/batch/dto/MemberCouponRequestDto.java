@@ -15,11 +15,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MemberCouponRequestDto {
 
-    private MemberDto memberDto;
+    private Long memberId;
     private List<String> couponCodes = new ArrayList<>();
-    private List<String> groupCodes = new ArrayList<>();
+    private List<String> couponGroupCodes = new ArrayList<>();
 
-    public MemberCouponRequestDto(MemberDto memberDto) {
-        this.memberDto = memberDto;
+    public MemberCouponRequestDto(Long memberId) {
+        this.memberId = memberId;
     }
 }

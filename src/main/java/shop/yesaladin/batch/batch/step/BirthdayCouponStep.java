@@ -26,8 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import shop.yesaladin.batch.batch.dto.CouponRequestDto;
 import shop.yesaladin.batch.batch.dto.CouponResponseDto;
 import shop.yesaladin.batch.batch.dto.MemberCouponRequestDto;
-import shop.yesaladin.batch.batch.dto.MemberDto;
-import shop.yesaladin.batch.batch.model.Member;
 import shop.yesaladin.batch.config.ServerMetaConfig;
 import shop.yesaladin.common.dto.ResponseDto;
 import shop.yesaladin.coupon.trigger.TriggerTypeCode;
@@ -58,15 +56,15 @@ public class BirthdayCouponStep {
      */
     @Bean
     @StepScope
-    public ItemReader<Member> listItemReader(@Value("#{jobParameters[0]}") Integer laterDays) {
+    public ItemReader<Long> listItemReader(@Value("#{jobParameters['laterDays']}") Integer laterDays) {
         resetCurrentIndex();
-        List<Member> memberList = getBirthdayMemberList(laterDays);
-        if (memberList.isEmpty()) {
+        List<Long> memberIdList = getBirthdayMemberList(laterDays);
+        if (memberIdList.isEmpty()) {
             log.info("=== Birthday membership list is empty. ===");
             return null;
         }
-        requestBirthdayCoupon(memberList.size());
-        return new ListItemReader<>(memberList);
+        requestBirthdayCoupon(memberIdList.size());
+        return new ListItemReader<>(memberIdList);
     }
 
     /**
@@ -75,12 +73,12 @@ public class BirthdayCouponStep {
      * @return 회원 쿠폰 등록 요청 dto 로 변환하는 ItemProcessor
      */
     @Bean
-    public ItemProcessor<Member, MemberCouponRequestDto> itemProcessor() {
+    public ItemProcessor<Long, MemberCouponRequestDto> itemProcessor() {
         return item -> {
-            MemberCouponRequestDto dto = new MemberCouponRequestDto(MemberDto.fromEntity(item));
+            MemberCouponRequestDto dto = new MemberCouponRequestDto(item);
             this.couponResponseDtoList.forEach(coupon -> {
                 dto.getCouponCodes().add(coupon.getCreatedCouponCodes().get(currentIndex++));
-                dto.getGroupCodes().add(coupon.getCouponGroupCode());
+                dto.getCouponGroupCodes().add(coupon.getCouponGroupCode());
             });
             return dto;
         };
@@ -131,7 +129,7 @@ public class BirthdayCouponStep {
     @Bean
     public Step giveBirthdayCouponStep() {
         return stepBuilderFactory.get("giveBirthdayCouponStep")
-                .<Member, MemberCouponRequestDto>chunk(CHUNK_SIZE)
+                .<Long, MemberCouponRequestDto>chunk(CHUNK_SIZE)
                 .reader(listItemReader(null))
                 .processor(itemProcessor())
                 .writer(itemWriter())
@@ -144,14 +142,14 @@ public class BirthdayCouponStep {
      * @param laterDays 오늘 날짜를 기준으로 생일을 계산할 일수
      * @return laterDays 후가 생일인 회원 목록
      */
-    private List<Member> getBirthdayMemberList(int laterDays) {
+    private List<Long> getBirthdayMemberList(int laterDays) {
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(
                         serverMetaConfig.getShopServerUrl() + "/v1/members")
                 .queryParam("type=birthday", (Object) null)
                 .queryParam("laterDays", laterDays)
                 .build();
 
-        ResponseEntity<ResponseDto<List<Member>>> responseEntity = restTemplate.exchange(uriComponents.toUri(),
+        ResponseEntity<ResponseDto<List<Long>>> responseEntity = restTemplate.exchange(uriComponents.toUri(),
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {}

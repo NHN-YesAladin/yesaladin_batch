@@ -3,6 +3,7 @@ package shop.yesaladin.batch.scheduler;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -49,6 +50,7 @@ public class MemberGradeScheduler {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("startDate", inquiryStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .addString("endDate", inquiryEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .addDate("currentDate", new Date())
                 .toJobParameters();
 
         try {

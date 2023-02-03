@@ -1,7 +1,5 @@
 package shop.yesaladin.batch.config;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersValidator;
@@ -37,7 +35,7 @@ public class JobConfig {
     public JobParametersValidator validator() {
         DefaultJobParametersValidator validator = new DefaultJobParametersValidator();
 
-        validator.setRequiredKeys(new String[] {"startDate", "endDate"});
+        validator.setRequiredKeys(new String[]{"startDate", "endDate"});
 
         return validator;
     }
@@ -50,7 +48,7 @@ public class JobConfig {
     @Bean
     public Job updateMemberJob() {
         return jobBuilderFactory
-                .get("updateMemberJob" + LocalDate.now().format(DateTimeFormatter.ISO_DATE))
+                .get("updateMemberJob")
                 .start(updateMemberGradeStep)
                 .next(updateMemberPointStep)
                 .validator(validator())
@@ -59,12 +57,13 @@ public class JobConfig {
 
     /**
      * 생일 회원을 조회하여 쿠폰을 지급하는 Step 을 수행하는 Job 입니다.
+     *
      * @return giveBirthdayCouponStep 을 실행하는 Job
      */
     @Bean
     public Job giveBirthdayCouponJob() {
         return jobBuilderFactory
-                .get("giveBirthdayCouponJob" + LocalDate.now().format(DateTimeFormatter.ISO_DATE))
+                .get("giveBirthdayCouponJob")
                 .start(giveBirthdayCouponStep)
                 .build();
     }
