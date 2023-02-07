@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.job;
+package shop.yesaladin.batch.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -19,11 +19,12 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @EnableBatchProcessing
 @Configuration
-public class BatchJobConfig {
+public class JobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final Step updateMemberGradeStep;
     private final Step updateMemberPointStep;
+    private final Step giveBirthdayCouponStep;
 
     /**
      * updateMemberJob 의 필수 파라미터를 지정하는 validator 입니다.
@@ -34,7 +35,7 @@ public class BatchJobConfig {
     public JobParametersValidator validator() {
         DefaultJobParametersValidator validator = new DefaultJobParametersValidator();
 
-        validator.setRequiredKeys(new String[] {"startDate", "endDate"});
+        validator.setRequiredKeys(new String[]{"startDate", "endDate"});
 
         return validator;
     }
@@ -42,7 +43,7 @@ public class BatchJobConfig {
     /**
      * 지난달 주문 금액에 따라 회원의 등급을 수정하는 step 과 등급별 포인트를 지급하는 step 을 수행하는 Job 입니다.
      *
-     * @return 2개의 step 을 실행하는 updateMemberJob
+     * @return updateMemberGradeStep, updateMemberPointStep 을 실행하는 Job
      */
     @Bean
     public Job updateMemberJob() {
@@ -51,6 +52,19 @@ public class BatchJobConfig {
                 .start(updateMemberGradeStep)
                 .next(updateMemberPointStep)
                 .validator(validator())
+                .build();
+    }
+
+    /**
+     * 생일 회원을 조회하여 쿠폰을 지급하는 Step 을 수행하는 Job 입니다.
+     *
+     * @return giveBirthdayCouponStep 을 실행하는 Job
+     */
+    @Bean
+    public Job giveBirthdayCouponJob() {
+        return jobBuilderFactory
+                .get("giveBirthdayCouponJob")
+                .start(giveBirthdayCouponStep)
                 .build();
     }
 }

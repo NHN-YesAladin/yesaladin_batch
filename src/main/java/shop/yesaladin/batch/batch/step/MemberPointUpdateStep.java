@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.job.step;
+package shop.yesaladin.batch.batch.step;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +17,8 @@ import org.springframework.batch.item.database.support.SqlPagingQueryProviderFac
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import shop.yesaladin.batch.dto.MemberPointDto;
-import shop.yesaladin.batch.model.MemberGrade;
+import shop.yesaladin.batch.batch.dto.MemberPointDto;
+import shop.yesaladin.batch.batch.model.MemberGrade;
 
 /**
  * 매월 1일 지난달 주문 금액에 따라 변경된 회원 등급을 참조하여 회원 등급별 포인트를 지급하는 Batch Step 입니다.
@@ -31,6 +31,7 @@ import shop.yesaladin.batch.model.MemberGrade;
 public class MemberPointUpdateStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private static final int CHUNK_SIZE = 100;
     private final int minMemberGradeId = MemberGrade.WHITE.getId();
 
     /**
@@ -45,7 +46,7 @@ public class MemberPointUpdateStep {
                 .name("memberPointDtoItemReader")
                 .dataSource(dataSource)
                 .queryProvider(pagingQueryProvider())
-                .pageSize(10)
+                .pageSize(CHUNK_SIZE)
                 .rowMapper(new BeanPropertyRowMapper<>(MemberPointDto.class))
                 .build();
     }
@@ -97,7 +98,7 @@ public class MemberPointUpdateStep {
     public Step updateMemberPointStep() throws Exception {
         return stepBuilderFactory
                 .get("updateMemberPointStep")
-                .<MemberPointDto, MemberPointDto>chunk(10)
+                .<MemberPointDto, MemberPointDto>chunk(CHUNK_SIZE)
                 .reader(memberPointDtoItemReader())
                 .writer(insertPointHistoryItemWriter())
                 .build();

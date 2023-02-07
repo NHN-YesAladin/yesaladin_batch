@@ -8,9 +8,3 @@ spring:
   cloud:
     config:
       enabled: false
-
----
-
-spring:
-  profiles:
-    active: dev
