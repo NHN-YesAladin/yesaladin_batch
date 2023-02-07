@@ -80,6 +80,7 @@ public class BirthdayCouponStep {
             this.couponResponseDtoList.forEach(coupon -> {
                 dto.getCouponCodes().add(coupon.getCreatedCouponCodes().get(currentIndex++));
                 dto.getCouponGroupCodes().add(coupon.getCouponGroupCode());
+                dto.getExpirationDates().add(coupon.getExpirationDate());
             });
             return dto;
         };
@@ -93,6 +94,21 @@ public class BirthdayCouponStep {
     @Bean
     public ItemWriter<MemberCouponRequestDto> itemWriter() {
         return this::registerMemberCoupon;
+    }
+
+    /**
+     * Shop, Coupon 서버와의 API 통신으로 생일인 회원에게 쿠폰을 지급하는 Step 입니다.
+     *
+     * @return giveBirthdayCouponStep
+     */
+    @Bean
+    public Step giveBirthdayCouponStep() {
+        return stepBuilderFactory.get("giveBirthdayCouponStep")
+                .<MemberDto, MemberCouponRequestDto>chunk(CHUNK_SIZE)
+                .reader(listItemReader(null))
+                .processor(itemProcessor())
+                .writer(itemWriter())
+                .build();
     }
 
     /**
@@ -120,21 +136,6 @@ public class BirthdayCouponStep {
         );
 
         this.couponResponseDtoList = Objects.requireNonNull(response.getBody()).getData();
-    }
-
-    /**
-     * Shop, Coupon 서버와의 API 통신으로 생일인 회원에게 쿠폰을 지급하는 Step 입니다.
-     *
-     * @return giveBirthdayCouponStep
-     */
-    @Bean
-    public Step giveBirthdayCouponStep() {
-        return stepBuilderFactory.get("giveBirthdayCouponStep")
-                .<MemberDto, MemberCouponRequestDto>chunk(CHUNK_SIZE)
-                .reader(listItemReader(null))
-                .processor(itemProcessor())
-                .writer(itemWriter())
-                .build();
     }
 
     /**
