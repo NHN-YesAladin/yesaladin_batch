@@ -122,6 +122,7 @@
     </dependencyManagement>
 
     <build>
+        <finalName>yesaladin-batch</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
