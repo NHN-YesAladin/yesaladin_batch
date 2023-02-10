@@ -1,5 +1,7 @@
 spring:
   application:
     name: yesaladin-batch
+  profiles:
+    active: test
   config:
     import: optional:configserver:http://192.168.0.78:8888
