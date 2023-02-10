@@ -1,10 +1,7 @@
-eureka:
-  client:
-    enabled: false
-
 spring:
   application:
     name: yesaladin-batch
-  cloud:
-    config:
-      enabled: false
+  profiles:
+    active: prod
+  config:
+    import: optional:configserver:http://192.168.0.78:8888

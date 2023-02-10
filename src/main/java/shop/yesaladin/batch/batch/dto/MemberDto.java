@@ -15,5 +15,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MemberDto {
 
-    private Long id;
+    private Long memberId;
 }

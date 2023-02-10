@@ -1,5 +1,6 @@
 package shop.yesaladin.batch.batch.dto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class MemberCouponRequestDto {
     private Long memberId;
     private List<String> couponCodes = new ArrayList<>();
     private List<String> couponGroupCodes = new ArrayList<>();
+    private List<LocalDate> expirationDates = new ArrayList<>();
 
     public MemberCouponRequestDto(Long memberId) {
         this.memberId = memberId;
