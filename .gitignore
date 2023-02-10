@@ -35,3 +35,6 @@ build/
 ### DEV ###
 application-dev.yml
 application-test.yml
+
+### Mac OS ###
+.DS_Store
