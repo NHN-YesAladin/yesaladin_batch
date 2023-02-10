@@ -1,7 +1,5 @@
 package shop.yesaladin.batch.batch.step;
 
-import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
@@ -15,11 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,6 +24,9 @@ import shop.yesaladin.batch.batch.dto.MemberDto;
 import shop.yesaladin.batch.config.ServerMetaConfig;
 import shop.yesaladin.common.dto.ResponseDto;
 import shop.yesaladin.coupon.trigger.TriggerTypeCode;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Shop 과 Coupon 서버의 API 통신을 통해 생일인 회원에게 생일 쿠폰을 발급하는 Batch Step 입니다.
@@ -132,7 +129,8 @@ public class BirthdayCouponStep {
                 serverMetaConfig.getCouponServerUrl() + "/v1/issuances",
                 HttpMethod.POST,
                 request,
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
 
         this.couponResponseDtoList = Objects.requireNonNull(response.getBody()).getData();
@@ -154,7 +152,8 @@ public class BirthdayCouponStep {
         ResponseEntity<ResponseDto<List<MemberDto>>> responseEntity = restTemplate.exchange(uriComponents.toUri(),
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
 
         return Objects.requireNonNull(responseEntity.getBody()).getData();
@@ -176,7 +175,8 @@ public class BirthdayCouponStep {
         restTemplate.exchange(serverMetaConfig.getShopServerUrl() + "/v1/coupons",
                 HttpMethod.POST,
                 request,
-                new ParameterizedTypeReference<>() {}
+                new ParameterizedTypeReference<>() {
+                }
         );
     }
 

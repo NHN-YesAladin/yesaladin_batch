@@ -1,17 +1,18 @@
 package shop.yesaladin.batch.batch.step;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
-import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
+import org.springframework.batch.item.database.Order;
 import org.springframework.batch.item.database.PagingQueryProvider;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import shop.yesaladin.batch.batch.dto.OrderStatusChangeLogDto;
@@ -66,10 +67,10 @@ public class OrderStatusChangeLogInsertStep {
     @StepScope
     public JdbcPagingItemReader<OrderStatusChangeLogDto> orderStatusChangeLogItemReader(
             PagingQueryProvider queryProvider,
-            @Value("#{jobParameters['changeDatetime']}") String changeDatetime
+            @Value("#{jobParameters['threeDaysAgoDate']}") String threeDaysAgoDate
     ) {
         Map<String, Object> parameterValues = new HashMap<>(1);
-        parameterValues.put("changeDatetime", changeDatetime);
+        parameterValues.put("threeDaysAgoDate", threeDaysAgoDate);
 
         return new JdbcPagingItemReaderBuilder<OrderStatusChangeLogDto>()
                 .name("orderStatusChangeLogItemReader")
@@ -93,16 +94,23 @@ public class OrderStatusChangeLogInsertStep {
     public SqlPagingQueryProviderFactoryBean pagingQueryProviderFactoryBean(DataSource dataSource) {
         SqlPagingQueryProviderFactoryBean factoryBean = new SqlPagingQueryProviderFactoryBean();
 
+        Map<String, Order> sortKeys = new HashMap<>();
+        sortKeys.put("l.change_datetime", Order.ASCENDING);
+
         factoryBean.setDataSource(dataSource);
 
-        factoryBean.setSelectClause("select *");
-        factoryBean.setFromClause("from order_status_change_logs as o");
-        factoryBean.setWhereClause("o.order_status_code_id = 1 and o.change_datetime <= :changeDatetime");
+        factoryBean.setSelectClause("SELECT l.order_id, l.change_datetime, l.order_status_code_id ");
+        factoryBean.setFromClause("FROM order_status_change_logs AS l " +
+                "LEFT JOIN (" +
+                "SELECT o.order_id " +
+                "FROM order_status_change_logs AS o " +
+                "WHERE o.order_status_code_id != 1 " +
+                "GROUP BY o.order_id) AS o ON l.order_id = o.order_id ");
+        factoryBean.setWhereClause("WHERE DATE(l.change_datetime) <= :threeDaysAgoDate AND o.order_id is null");
+        factoryBean.setSortKeys(sortKeys);
 
         return factoryBean;
     }
-
-    // TODO: 조인 추가...?
 
     /**
      * 조회된 주문을 대상으로 취소(CANCEL) 상태 변경 이력을 삽입합니다.

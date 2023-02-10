@@ -1,10 +1,11 @@
 package shop.yesaladin.batch.batch.converter;
 
-import java.util.Objects;
-import java.util.stream.Stream;
+import shop.yesaladin.batch.batch.model.MemberGenderCode;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import shop.yesaladin.batch.batch.model.MemberGenderCode;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 
 /**
