@@ -1,9 +1,5 @@
 package shop.yesaladin.batch.batch.step;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -25,6 +21,11 @@ import org.springframework.context.annotation.Configuration;
 import shop.yesaladin.batch.batch.dto.MemberGradeDto;
 import shop.yesaladin.batch.batch.mapper.MemberGradeDtoRowMapper;
 import shop.yesaladin.batch.batch.model.MemberGrade;
+
+import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 매월 1일 전체 회원을 대상으로 지난달 주문에 대한 회원별 주문 금액을 산정하여 회원의 등급을 수정하는 Batch Step 입니다.

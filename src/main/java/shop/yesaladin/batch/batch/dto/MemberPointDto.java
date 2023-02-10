@@ -8,7 +8,7 @@ import lombok.Setter;
  * 회원 정보를 담은 MemberPointUpdateStep 에서 사용될 item 단위입니다.
  *
  * @author 서민지
- * @since  1.0
+ * @since 1.0
  */
 @Getter
 @Setter
