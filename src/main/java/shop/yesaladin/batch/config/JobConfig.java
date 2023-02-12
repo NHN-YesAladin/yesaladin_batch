@@ -29,6 +29,7 @@ public class JobConfig {
     private final Step giveBirthdayCouponStep;
 
     private final Step insertOrderStatusChangeLogStep;
+    private final Step notifyRenewalOfSubscriptionStep;
 
     /**
      * updateMemberJob 의 필수 파라미터를 지정하는 validator 입니다.
@@ -85,6 +86,21 @@ public class JobConfig {
         return jobBuilderFactory
                 .get("insertOrderStatusChangeLogJob")
                 .start(insertOrderStatusChangeLogStep)
+                .build();
+    }
+
+    /**
+     * 구독이 만료되는 1달 전 부터 구독 갱신을 위한 알림을 보내는 Step 을 수행하는 Job 입니다.
+     *
+     * @return notifyRenewalOfSubscriptionStep 을 실행하는 Job
+     * @author 이수정
+     * @since 1.0
+     */
+    @Bean
+    public Job notifyRenewalOfSubscriptionJob() {
+        return jobBuilderFactory
+                .get("notifyRenewalOfSubscriptionJob")
+                .start(notifyRenewalOfSubscriptionStep)
                 .build();
     }
 }

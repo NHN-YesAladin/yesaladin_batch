@@ -12,6 +12,7 @@ import org.springframework.batch.item.database.PagingQueryProvider;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,19 +47,19 @@ public class OrderStatusChangeLogInsertStep {
      */
     @Bean
     @JobScope
-    public Step insertOrderStatusChangeLogStep() throws Exception {
+    public Step insertOrderStatusChangeLogStep() {
         return stepBuilderFactory.get("insertOrderStatusChangeLogStep")
                 .<OrderStatusChangeLogDto, OrderStatusChangeLogDto>chunk(CHUNK_SIZE)
                 .reader(orderStatusChangeLogItemReader(null, null))
-                .writer(orderStatusChangeLogDtoItemWriter(null))
+                .writer(orderStatusChangeLogItemWriter(null))
                 .build();
-
     }
 
     /**
      * 주문 상태 변경 이력에서 상태가 주문(ORDER)이고 3일 이상 지난 주문을 조회하여 반환합니다.
      *
-     * @param queryProvider 페이징 기반 ResultSet 을 탐색하는데 필요한 모든 기능을 제공하는 PagingQueryProvider
+     * @param queryProvider    페이징 기반 ResultSet 을 탐색하는데 필요한 모든 기능을 제공하는 PagingQueryProvider
+     * @param threeDaysAgoDate 기준이 되는 3일 전의 날짜
      * @return DB 에서 주문 정보를 Paging 하여 조회하는 ItemReader
      * @author 이수정
      * @since 1.0
@@ -66,7 +67,7 @@ public class OrderStatusChangeLogInsertStep {
     @Bean
     @StepScope
     public JdbcPagingItemReader<OrderStatusChangeLogDto> orderStatusChangeLogItemReader(
-            PagingQueryProvider queryProvider,
+            @Qualifier("orderStatusChangeLogFactoryBean") PagingQueryProvider queryProvider,
             @Value("#{jobParameters['threeDaysAgoDate']}") String threeDaysAgoDate
     ) {
         Map<String, Object> parameterValues = new HashMap<>(1);
@@ -91,7 +92,7 @@ public class OrderStatusChangeLogInsertStep {
      * @since 1.0
      */
     @Bean
-    public SqlPagingQueryProviderFactoryBean pagingQueryProviderFactoryBean(DataSource dataSource) {
+    public SqlPagingQueryProviderFactoryBean orderStatusChangeLogFactoryBean(DataSource dataSource) {
         SqlPagingQueryProviderFactoryBean factoryBean = new SqlPagingQueryProviderFactoryBean();
 
         Map<String, Order> sortKeys = new HashMap<>();
@@ -122,7 +123,7 @@ public class OrderStatusChangeLogInsertStep {
      */
     @Bean
     @StepScope
-    public JdbcBatchItemWriter<OrderStatusChangeLogDto> orderStatusChangeLogDtoItemWriter(DataSource dataSource) {
+    public JdbcBatchItemWriter<OrderStatusChangeLogDto> orderStatusChangeLogItemWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<OrderStatusChangeLogDto>()
                 .dataSource(dataSource)
                 .sql("INSERT INTO order_status_change_logs (change_datetime, order_id, order_status_code_id) VALUES (now(), :orderId, 7)")

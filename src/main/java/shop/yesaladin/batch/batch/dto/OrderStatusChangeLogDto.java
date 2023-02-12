@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * 주문 상태 변경 이력 정보를 담은 OrderStatusChangeLogInsertStep 에서 사용된 Item 의 Dto 입니다.
+ * 주문 상태 변경 이력 정보를 담은 OrderStatusChangeLogInsertStep 에서 사용되는 Item 의 Dto 입니다.
  *
  * @author 이수정
  * @since 1.0

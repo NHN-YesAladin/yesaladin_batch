@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 public class OrderStatusChangeLogDtoRowMapper implements RowMapper<OrderStatusChangeLogDto> {
 
     @Override
-    public OrderStatusChangeLogDto mapRow(ResultSet resultSet, int rowNumber) throws SQLException {
+    public OrderStatusChangeLogDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         OrderStatusChangeLogDto orderStatusChangeLogDto = new OrderStatusChangeLogDto();
 
-        orderStatusChangeLogDto.setOrderId(resultSet.getLong("order_id"));
-        orderStatusChangeLogDto.setChangeDateTime(resultSet.getObject("change_datetime", LocalDateTime.class));
-        orderStatusChangeLogDto.setOrderStatusCodeId(resultSet.getInt("order_status_code_id"));
+        orderStatusChangeLogDto.setOrderId(rs.getLong("order_id"));
+        orderStatusChangeLogDto.setChangeDateTime(rs.getObject("change_datetime", LocalDateTime.class));
+        orderStatusChangeLogDto.setOrderStatusCodeId(rs.getInt("order_status_code_id"));
 
         return orderStatusChangeLogDto;
     }
