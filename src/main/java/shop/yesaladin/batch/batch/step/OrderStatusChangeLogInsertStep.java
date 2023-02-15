@@ -105,7 +105,7 @@ public class OrderStatusChangeLogInsertStep {
                 "LEFT JOIN (" +
                 "SELECT o.order_id " +
                 "FROM order_status_change_logs AS o " +
-                "WHERE o.order_status_code_id != 1 " +
+                "WHERE o.order_status_code_id != (select id from order_status_codes where status = 'ORDER') " +
                 "GROUP BY o.order_id) AS o ON l.order_id = o.order_id ");
         factoryBean.setWhereClause("WHERE DATE(l.change_datetime) <= :threeDaysAgoDate AND o.order_id is null");
         factoryBean.setSortKeys(sortKeys);
@@ -126,7 +126,8 @@ public class OrderStatusChangeLogInsertStep {
     public JdbcBatchItemWriter<OrderStatusChangeLogDto> orderStatusChangeLogItemWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<OrderStatusChangeLogDto>()
                 .dataSource(dataSource)
-                .sql("INSERT INTO order_status_change_logs (change_datetime, order_id, order_status_code_id) VALUES (now(), :orderId, 7)")
+                .sql("INSERT INTO order_status_change_logs (change_datetime, order_id, order_status_code_id) " +
+                        "VALUES (now(), :orderId, (select id from order_status_codes where status = 'CANCEL'))")
                 .beanMapped()
                 .build();
     }
