@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * Spring Batch 설정 입니다.
  *
  * @author 서민지
+ * @author 이수정
  * @since 1.0
  */
 @RequiredArgsConstructor
@@ -22,9 +23,13 @@ import org.springframework.context.annotation.Configuration;
 public class JobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
+
     private final Step updateMemberGradeStep;
     private final Step updateMemberPointStep;
     private final Step giveBirthdayCouponStep;
+
+    private final Step insertOrderStatusChangeLogStep;
+    private final Step notifyRenewalOfSubscriptionStep;
 
     /**
      * updateMemberJob 의 필수 파라미터를 지정하는 validator 입니다.
@@ -65,6 +70,37 @@ public class JobConfig {
         return jobBuilderFactory
                 .get("giveBirthdayCouponJob")
                 .start(giveBirthdayCouponStep)
+                .build();
+    }
+
+    /**
+     * 주문 상태 변경 이력 테이블에 기록된 가장 최근 상태가 주문(ORDER)인 채로 3일이 지난 주문을 대상으로,
+     * 주문 상태 변경 이력 테이블에 취소(CANCEL) 상태를 추가 기록해주는 Step 을 수행하는 Job 입니다.
+     *
+     * @return insertOrderStatusChangeLogStep 을 실행하는 Job
+     * @author 이수정
+     * @since 1.0
+     */
+    @Bean
+    public Job insertOrderStatusChangeLogJob() {
+        return jobBuilderFactory
+                .get("insertOrderStatusChangeLogJob")
+                .start(insertOrderStatusChangeLogStep)
+                .build();
+    }
+
+    /**
+     * 구독이 만료되는 1달 전 부터 구독 갱신을 위한 알림을 보내는 Step 을 수행하는 Job 입니다.
+     *
+     * @return notifyRenewalOfSubscriptionStep 을 실행하는 Job
+     * @author 이수정
+     * @since 1.0
+     */
+    @Bean
+    public Job notifyRenewalOfSubscriptionJob() {
+        return jobBuilderFactory
+                .get("notifyRenewalOfSubscriptionJob")
+                .start(notifyRenewalOfSubscriptionStep)
                 .build();
     }
 }

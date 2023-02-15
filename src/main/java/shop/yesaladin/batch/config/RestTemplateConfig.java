@@ -1,6 +1,5 @@
 package shop.yesaladin.batch.config;
 
-import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +8,8 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.Duration;
 
 /**
  * RestTemplate 설정 클래스입니다.

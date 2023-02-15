@@ -1,10 +1,11 @@
 package shop.yesaladin.batch.batch.converter;
 
-import java.util.Objects;
-import java.util.stream.Stream;
+import shop.yesaladin.batch.batch.model.MemberGrade;
+
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import shop.yesaladin.batch.batch.model.MemberGrade;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * 회원의 등급을 변환하기 위한 컨버터 클래스 입니다.
