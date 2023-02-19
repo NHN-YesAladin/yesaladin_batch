@@ -65,6 +65,6 @@ YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, �
 
 ## Contributors
 
-<a href="https://github.com/NHN-YesAladin/yesaladin_gateway/graphs/contributors">
+<a href="https://github.com/NHN-YesAladin/yesaladin_batch/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=NHN-YesAladin/yesaladin_front" />
 </a>
