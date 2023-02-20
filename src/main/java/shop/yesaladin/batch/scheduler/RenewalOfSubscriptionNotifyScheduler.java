@@ -39,7 +39,7 @@ public class RenewalOfSubscriptionNotifyScheduler {
             log.info("start time = {}", LocalDateTime.now());
 
             LocalDate oneMonthLater = LocalDate.now().plusWeeks(4);
-            LocalDate oneWeekLater = LocalDate.now().plusWeeks(3);
+            LocalDate oneWeekLater = LocalDate.now().plusWeeks(1);
             LocalDate oneDayLater = LocalDate.now().plusDays(1);
             log.info("oneMonthLater = {}", oneMonthLater);
             log.info("oneWeekLater = {}", oneWeekLater);

@@ -58,7 +58,7 @@ public class RenewalOfSubscriptionNotifyStep {
         return stepBuilderFactory.get("notifyRenewalOfSubscriptionStep")
                 .<NotifyRenewalOfSubscriptionDto, NotifyRenewalOfSubscriptionDto>chunk(CHUNK_SIZE)
                 .reader(notifyRenewalOfSubscriptionItemReader(null, null))
-                .writer(notifyRenewalOfSubscriptionItemWriter(null, null))
+                .writer(notifyRenewalOfSubscriptionItemWriter(null))
                 .build();
     }
 
@@ -123,7 +123,6 @@ public class RenewalOfSubscriptionNotifyStep {
     /**
      * 조회된 정기 구독 관련 정보를 바탕으로 정기구독자에게 알람을 보냅니다.
      *
-     * @param dataSource    DB 의 유형을 결정하는 DataSource
      * @param remainingDate 남은 구독일 (1달/ 1주일/ 3일/ 하루)
      * @return 정기구독 알림을 보내는 ItemWriter
      * @author 이수정
@@ -132,7 +131,6 @@ public class RenewalOfSubscriptionNotifyStep {
     @Bean
     @StepScope
     public ItemWriter<NotifyRenewalOfSubscriptionDto> notifyRenewalOfSubscriptionItemWriter(
-            DataSource dataSource,
             @Value("#{jobParameters['remainingDate']}") String remainingDate
     ) {
         return items -> {
