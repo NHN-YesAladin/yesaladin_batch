@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
- * 구독이 만료되는 1달 전부터 구독 갱신을 위한 알림을 보내는 Job 의 스케줄러 입니다.
+ * 구독이 만료되기 1달 전부터 구독 갱신을 위한 알림을 보내는 Job 의 스케줄러 입니다.
  *
  * @author 이수정
  * @since 1.0
