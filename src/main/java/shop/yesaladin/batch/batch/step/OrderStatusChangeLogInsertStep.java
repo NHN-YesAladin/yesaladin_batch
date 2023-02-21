@@ -22,6 +22,11 @@ import org.springframework.context.annotation.Configuration;
 import shop.yesaladin.batch.batch.dto.OrderStatusChangeLogDto;
 import shop.yesaladin.batch.batch.mapper.OrderStatusChangeLogDtoRowMapper;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 주문 상태 변경 이력을 조회하여 주문(ORDER) 상태로 3일 지난 주문를 취소(CANCEL) 상태로 추가 기록하는 Batch Step 입니다.
  *
@@ -51,6 +56,10 @@ public class OrderStatusChangeLogInsertStep {
                 .<OrderStatusChangeLogDto, OrderStatusChangeLogDto>chunk(CHUNK_SIZE)
                 .reader(orderStatusChangeLogItemReader(null, null))
                 .writer(orderStatusChangeLogItemWriter(null))
+                .faultTolerant()
+                .retry(Exception.class)
+                .noRetry(SQLException.class)
+                .retryLimit(3)
                 .build();
     }
 
