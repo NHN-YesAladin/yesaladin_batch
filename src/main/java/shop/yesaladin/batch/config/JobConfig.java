@@ -9,6 +9,7 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import shop.yesaladin.batch.batch.listener.JobLoggingListener;
 
 /**
  * Spring Batch 설정 입니다.
@@ -27,9 +28,9 @@ public class JobConfig {
     private final Step updateMemberGradeStep;
     private final Step updateMemberPointStep;
     private final Step giveBirthdayCouponStep;
-
     private final Step insertOrderStatusChangeLogStep;
     private final Step notifyRenewalOfSubscriptionStep;
+    private final JobLoggingListener jobLoggingListener;
 
     /**
      * updateMemberJob 의 필수 파라미터를 지정하는 validator 입니다.
@@ -57,6 +58,7 @@ public class JobConfig {
                 .start(updateMemberGradeStep)
                 .next(updateMemberPointStep)
                 .validator(validator())
+                .listener(jobLoggingListener)
                 .build();
     }
 
@@ -70,6 +72,7 @@ public class JobConfig {
         return jobBuilderFactory
                 .get("giveBirthdayCouponJob")
                 .start(giveBirthdayCouponStep)
+                .listener(jobLoggingListener)
                 .build();
     }
 
@@ -86,6 +89,7 @@ public class JobConfig {
         return jobBuilderFactory
                 .get("insertOrderStatusChangeLogJob")
                 .start(insertOrderStatusChangeLogStep)
+                .listener(jobLoggingListener)
                 .build();
     }
 
@@ -101,6 +105,7 @@ public class JobConfig {
         return jobBuilderFactory
                 .get("notifyRenewalOfSubscriptionJob")
                 .start(notifyRenewalOfSubscriptionStep)
+                .listener(jobLoggingListener)
                 .build();
     }
 }

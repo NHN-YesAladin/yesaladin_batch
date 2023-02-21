@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import shop.yesaladin.batch.batch.dto.NotifyRenewalOfSubscriptionDto;
+import shop.yesaladin.batch.batch.listener.StepLoggingListener;
 import shop.yesaladin.batch.batch.mapper.NotifyRenewalOfSubscriptionDtoMapper;
 
 import javax.sql.DataSource;
@@ -40,6 +41,7 @@ public class RenewalOfSubscriptionNotifyStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
     private final RestTemplate restTemplate;
+    private final StepLoggingListener stepLoggingListener;
 
     private static final String DOORAY_HOOK_URL = "https://hook.dooray.com/services/3204376758577275363/3472093162960357708/YOuBRWeZSPWxAbv8s5kAZg";
     private static final int CHUNK_SIZE = 100;
@@ -59,6 +61,7 @@ public class RenewalOfSubscriptionNotifyStep {
                 .<NotifyRenewalOfSubscriptionDto, NotifyRenewalOfSubscriptionDto>chunk(CHUNK_SIZE)
                 .reader(notifyRenewalOfSubscriptionItemReader(null, null))
                 .writer(notifyRenewalOfSubscriptionItemWriter(null))
+                .listener(stepLoggingListener)
                 .build();
     }
 

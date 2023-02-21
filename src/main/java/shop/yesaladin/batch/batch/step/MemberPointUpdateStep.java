@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import shop.yesaladin.batch.batch.dto.MemberPointDto;
+import shop.yesaladin.batch.batch.listener.StepLoggingListener;
 import shop.yesaladin.batch.batch.model.MemberGrade;
 
 import javax.sql.DataSource;
@@ -32,6 +33,7 @@ import java.util.Map;
 public class MemberPointUpdateStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private final StepLoggingListener stepLoggingListener;
     private static final int CHUNK_SIZE = 100;
     private final int minMemberGradeId = MemberGrade.WHITE.getId();
 
@@ -102,8 +104,7 @@ public class MemberPointUpdateStep {
                 .<MemberPointDto, MemberPointDto>chunk(CHUNK_SIZE)
                 .reader(memberPointDtoItemReader())
                 .writer(insertPointHistoryItemWriter())
+                .listener(stepLoggingListener)
                 .build();
     }
-
-
 }

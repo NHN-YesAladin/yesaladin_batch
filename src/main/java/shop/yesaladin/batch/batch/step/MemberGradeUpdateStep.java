@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import shop.yesaladin.batch.batch.dto.MemberGradeDto;
+import shop.yesaladin.batch.batch.listener.StepLoggingListener;
 import shop.yesaladin.batch.batch.mapper.MemberGradeDtoRowMapper;
 import shop.yesaladin.batch.batch.model.MemberGrade;
 
@@ -39,6 +40,7 @@ public class MemberGradeUpdateStep {
 
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
+    private final StepLoggingListener stepLoggingListener;
     private static final int CHUNK_SIZE = 100;
 
     /**
@@ -181,6 +183,7 @@ public class MemberGradeUpdateStep {
                 .reader(memberGradeDtoItemReader(null, null))
                 .processor(memberGradeDtoItemProcessor())
                 .writer(compositeItemWriter())
+                .listener(stepLoggingListener)
                 .build();
     }
 }
