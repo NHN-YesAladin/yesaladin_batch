@@ -19,7 +19,7 @@ YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, �
   - 조회된 주문을 대상으로 취소(CANCEL) 상태의 이력을 테이블 order_status_change_logs(주문 상태 변경 이력)에 추가
 - 매일 10시 구독 갱신까지 1달, 1주, 1일 남은 구독주문을 조회하여 두레이 훅을 사용해 구독자에게 알림
   - DB에 접근하여 지정한 기간만큼 남은 구독주문 상품, 그와 관련된 구독자, 결제일, 구독 기간을 조회
-  - ItemWriter를 사용하여 구독 정보를 두레이 훅을 통해 구독자에게 알림
+  - ItemWriter를 사용하여 구독 정보를 DoorayHookSender를 통해 구독자에게 알림
 
 ## Project Architecture
 
