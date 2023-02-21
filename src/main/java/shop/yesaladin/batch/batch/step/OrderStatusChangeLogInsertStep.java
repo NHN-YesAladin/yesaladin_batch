@@ -21,6 +21,7 @@ import shop.yesaladin.batch.batch.listener.StepLoggingListener;
 import shop.yesaladin.batch.batch.mapper.OrderStatusChangeLogDtoRowMapper;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +55,10 @@ public class OrderStatusChangeLogInsertStep {
                 .<OrderStatusChangeLogDto, OrderStatusChangeLogDto>chunk(CHUNK_SIZE)
                 .reader(orderStatusChangeLogItemReader(null, null))
                 .writer(orderStatusChangeLogItemWriter(null))
-                .listener(stepLoggingListener)
+                .faultTolerant()
+                .retry(Exception.class)
+                .noRetry(SQLException.class)
+                .retryLimit(3)
                 .build();
     }
 

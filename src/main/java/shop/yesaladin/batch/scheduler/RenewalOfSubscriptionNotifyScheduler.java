@@ -31,7 +31,8 @@ public class RenewalOfSubscriptionNotifyScheduler {
 
     private final Job notifyRenewalOfSubscriptionJob;
     private final JobLauncher jobLauncher;
-    private static final String EVERY_DAY = "0 0 10 * * *";
+//    private static final String EVERY_DAY = "0 0 10 * * *";
+    private static final String EVERY_DAY = "0 * * * * *";
 
     @Scheduled(cron = EVERY_DAY, zone = "Asia/Seoul")
     public void scheduleRenewalOfSubscriptionNotify() {
