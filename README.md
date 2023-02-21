@@ -1,6 +1,5 @@
 # yesaladin_batch
-YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, 구독 갱신 알림에 대한 Batch Job을 수행하기 위한 시스템 입니다.
-(설명 보완 작성해주세요)
+YesAladin Batch는 Spring Batch와 Spring Scheduler를 사용하여 Yesaladin 내 여러 배치 작업을 처리하는 시스템입니다. 회원 등급 갱신, 갱신된 등급에 따른 포인트 지급, 생일 쿠폰 지급, 주문 상태 변경, 구독 갱신 알림을 수행합니다.
 
 ## Getting Started
 ```bash
@@ -10,11 +9,23 @@ YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, �
 ## Features
 ### [@서민지](https://github.com/narangd0)
 
-- (구현하신 feature 설명 작성해주세요.)
+- 매월 1일 전달 주문 금액 산정을 통한 회원 등급 갱신
+  - Shop 데이터베이스에 접근하여 회원의 전달 순수 주문 금액 계산 처리 후 등급 갱신
+  - CompositeItemWriter를 사용한 회원 등급 갱신/등급 갱신 내역에 대한 복합적인 쓰기 작업 수행
+- 회원 등급에 따른 포인트 지급
+- 생일 회원에게 쿠폰 지급
+  - Shop/Coupon 서버와의 api call을 통한 생일 회원 조회/쿠폰 지급 처리
+- NHN Cloud Log & Crash 연동을 통해 모니터링 환경 구축
+- Spring Cloud Config 연동을 통해 설정 정보 외부화
 
 ### [@이수정](https://github.com/sujeong68)
 
-- (구현하신 feature 설명 작성해주세요.)
+- 매일 자정 주문(ORDER) 상태로 3일이 지난 주문을 조회하여 취소(CANCEL) 상태로 이력 추가
+  - DB에 접근하여 테이블 order_status_change_logs(주문 상태 변경 이력)에서 주문(ORDER) 상태로 3일이 지나고, 3일 사이 주문(ORDER) 상태 외 이력이 존재하지 않는 주문 조회
+  - 조회된 주문을 대상으로 취소(CANCEL) 상태의 이력을 테이블 order_status_change_logs(주문 상태 변경 이력)에 추가
+- 매일 10시 구독 갱신까지 1달, 1주, 1일 남은 구독주문을 조회하여 두레이 훅을 사용해 구독자에게 알림
+  - DB에 접근하여 지정한 기간만큼 남은 구독주문 상품, 그와 관련된 구독자, 결제일, 구독 기간을 조회
+  - ItemWriter를 사용하여 구독 정보를 DoorayHookSender를 통해 구독자에게 알림
 
 ## Project Architecture
 
@@ -36,6 +47,7 @@ YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, �
 ![SpringBoot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat&logo=SpringBoot&logoColor=white)
 ![SpringCloud](https://img.shields.io/badge/Spring%20Cloud-6DB33F?style=flat&logo=Spring&logoColor=white)
 ![SpringBatch](https://img.shields.io/badge/Spring%20Batch-6DB33F?style=flat&logo=Spring&logoColor=white)
+![SpringBatch](https://img.shields.io/badge/Spring%20Scheduler-6DB33F?style=flat&logo=Spring&logoColor=white)
 
 ### Build Tool
 
@@ -50,6 +62,7 @@ YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, �
 ![NHN Cloud](https://img.shields.io/badge/-NHN%20Cloud-blue?style=flat&logo=iCloud&logoColor=white)
 ![Jenkins](http://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=Jenkins&logoColor=white)
 ![SonarQube](https://img.shields.io/badge/SonarQube-4E98CD?style=flat&logo=SonarQube&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat&logo=Grafana&logoColor=white)
 
 ### 형상 관리 전략
 
