@@ -5,6 +5,7 @@ import com.nhn.dooray.client.DoorayHookSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.annotation.OnWriteError;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -45,7 +46,7 @@ public class RenewalOfSubscriptionNotifyStep {
     private static final int CHUNK_SIZE = 100;
 
     /**
-     * DB 정기 구독에서 다음 갱신일이 1달/ 1주일/ 3일/ 하루 남은 정기구독, 정기구독자를 조회하고 (ItemReader),
+     * DB 정기 구독에서 다음 갱신일이 1달/ 1주일/ 하루 남은 정기구독, 정기구독자를 조회하고 (ItemReader),
      * 조회된 정기구독자를 대상으로 알림을 보냅니다. (ItemWriter)
      *
      * @return 지정된 ItemReader, ItemWriter 를 가진 Step
@@ -137,15 +138,23 @@ public class RenewalOfSubscriptionNotifyStep {
             for (NotifyRenewalOfSubscriptionDto item : items) {
                 String text = item.getName() + "(" + item.getLoginId() + ")님, 구독하신 상품 [" + item.getTitle() + "]의 구독갱신까지 "
                         + remainingDate + " 남았습니다. " + item.getNextRenewalDate() + "에 구독(" + item.getIntervalMonth() + "개월)이 갱신됩니다.";
-                log.info("text = {}", text);
 
-                new DoorayHookSender(restTemplate, DOORAY_HOOK_URL)
-                        .send(DoorayHook.builder()
-                                .botName("구독 갱신 알림봇")
-                                .text(text)
-                                .build());
-                Thread.sleep(1000);
+                sendDoorayHook(item, text);
             }
         };
     }
+
+    private void sendDoorayHook(NotifyRenewalOfSubscriptionDto item, String text) {
+        try {
+            new DoorayHookSender(restTemplate, DOORAY_HOOK_URL)
+                    .send(DoorayHook.builder()
+                            .botName("구독 갱신 알림봇")
+                            .text(text)
+                            .build());
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            log.error("retry = " + item.getLoginId());
+        }
+    }
+
 }
