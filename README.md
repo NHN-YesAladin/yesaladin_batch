@@ -1,6 +1,5 @@
 # yesaladin_batch
-YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, 구독 갱신 알림에 대한 Batch Job을 수행하기 위한 시스템 입니다.
-(설명 보완 작성해주세요)
+YesAladin Batch는 Spring Batch와 Spring Scheduler를 사용하여 Yesaladin 내 여러 배치 작업을 처리하는 시스템입니다. 회원 등급 갱신, 갱신된 등급에 따른 포인트 지급, 생일 쿠폰 지급, 주문 상태 변경, 구독 갱신 알림을 수행합니다.
 
 ## Getting Started
 ```bash
@@ -10,7 +9,14 @@ YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, �
 ## Features
 ### [@서민지](https://github.com/narangd0)
 
-- (구현하신 feature 설명 작성해주세요.)
+- 매월 1일 전달 주문 금액 산정을 통한 회원 등급 갱신
+  - Shop 데이터베이스에 접근하여 회원의 전달 순수 주문 금액 계산 처리 후 등급 갱신
+  - CompositeItemWriter를 사용한 회원 등급 갱신/등급 갱신 내역에 대한 복합적인 쓰기 작업 수행
+- 회원 등급에 따른 포인트 지급
+- 생일 회원에게 쿠폰 지급
+  - Shop/Coupon 서버와의 api call을 통한 생일 회원 조회/쿠폰 지급 처리
+- NHN Cloud Log & Crash 연동을 통해 모니터링 환경 구축
+- Spring Cloud Config 연동을 통해 설정 정보 외부화
 
 ### [@이수정](https://github.com/sujeong68)
 
@@ -41,6 +47,7 @@ YesAladin Batch는 회원 등급 갱신, 쿠폰 지급, 주문 상태 변경, �
 ![SpringBoot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat&logo=SpringBoot&logoColor=white)
 ![SpringCloud](https://img.shields.io/badge/Spring%20Cloud-6DB33F?style=flat&logo=Spring&logoColor=white)
 ![SpringBatch](https://img.shields.io/badge/Spring%20Batch-6DB33F?style=flat&logo=Spring&logoColor=white)
+![SpringBatch](https://img.shields.io/badge/Spring%20Scheduler-6DB33F?style=flat&logo=Spring&logoColor=white)
 
 ### Build Tool
 
