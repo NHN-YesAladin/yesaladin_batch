@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.batch.dto;
+package shop.yesaladin.batch.member.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

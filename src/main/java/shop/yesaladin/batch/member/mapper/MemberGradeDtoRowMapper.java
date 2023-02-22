@@ -1,7 +1,7 @@
-package shop.yesaladin.batch.batch.mapper;
+package shop.yesaladin.batch.member.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
-import shop.yesaladin.batch.batch.dto.MemberGradeDto;
+import shop.yesaladin.batch.member.dto.MemberGradeDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

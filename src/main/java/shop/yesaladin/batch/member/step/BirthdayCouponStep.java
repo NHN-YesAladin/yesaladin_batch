@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.batch.step;
+package shop.yesaladin.batch.member.step;
 
 import java.util.List;
 import java.util.Objects;
@@ -22,10 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import shop.yesaladin.batch.batch.dto.CouponRequestDto;
-import shop.yesaladin.batch.batch.dto.CouponResponseDto;
-import shop.yesaladin.batch.batch.dto.MemberCouponRequestDto;
-import shop.yesaladin.batch.batch.dto.MemberDto;
+import shop.yesaladin.batch.member.dto.CouponRequestDto;
+import shop.yesaladin.batch.member.dto.CouponResponseDto;
+import shop.yesaladin.batch.member.dto.MemberCouponRequestDto;
+import shop.yesaladin.batch.member.dto.MemberDto;
 import shop.yesaladin.batch.batch.listener.StepLoggingListener;
 import shop.yesaladin.batch.config.ServerMetaConfig;
 import shop.yesaladin.common.dto.ResponseDto;

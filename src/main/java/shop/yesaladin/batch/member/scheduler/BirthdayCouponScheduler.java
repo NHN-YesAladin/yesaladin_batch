@@ -1,5 +1,6 @@
-package shop.yesaladin.batch.scheduler;
+package shop.yesaladin.batch.member.scheduler;
 
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -13,13 +14,8 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-
 /**
- * 회원 등급을 관리하는 Job 의 스케줄러 입니다.
+ * 생일 쿠폰 지급 Job 의 스케줄러 입니다.
  *
  * @author 서민지
  * @since 1.0
@@ -27,33 +23,28 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class MemberGradeScheduler {
+public class BirthdayCouponScheduler {
 
-    private final Job updateMemberJob;
+    private final Job giveBirthdayCouponJob;
     private final JobLauncher jobLauncher;
-    private static final String TWO_AM_1ST_OF_EVERY_MONTH = "0 0 2 1 * *";
+    private static final String ONE_AM_EVERY_DAY = "0 0 1 * * *";
+    private static final int LATER_DAYS = 7;
 
     /**
-     * 매월 1일 02시에 조회 시작일(지난달 1일), 조회 마지막일(이번달 1일) 파라미터를 갖는 updateMemberGradeJob 을 실행합니다.
+     * 매월 01시에 laterDays 파라미터를 갖는 giveBirthdayCouponJob 을 실행합니다.
      */
-    @Scheduled(cron = TWO_AM_1ST_OF_EVERY_MONTH, zone = "Asia/Seoul")
-    public void scheduleUpdateMemberGrade() {
-        LocalDate inquiryStartDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-        LocalDate inquiryEndDate = LocalDate.now().withDayOfMonth(1);
-
+    @Scheduled(cron = ONE_AM_EVERY_DAY, zone = "Asia/Seoul")
+    public void scheduleGiveBirthdayCoupon() {
         JobParameters jobParameters = new JobParametersBuilder()
-                .addString("startDate", inquiryStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                .addString("endDate", inquiryEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .addString("laterDays", String.valueOf(LATER_DAYS))
                 .addDate("currentDate", new Date())
                 .toJobParameters();
 
         try {
-            jobLauncher.run(updateMemberJob, jobParameters);
+            jobLauncher.run(giveBirthdayCouponJob, jobParameters);
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException | JobRestartException e) {
             log.error(e.getMessage());
         }
-
-        log.info("=== updateMemberGrade schedule ended at {} ===", LocalDateTime.now());
     }
 }
