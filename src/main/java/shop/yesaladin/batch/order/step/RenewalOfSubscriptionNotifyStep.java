@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import shop.yesaladin.batch.batch.listener.StepLoggingListener;
 import shop.yesaladin.batch.order.dto.NotifyRenewalOfSubscriptionDto;
 import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionItemReadListener;
 import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionItemWriteListener;
@@ -43,7 +42,6 @@ public class RenewalOfSubscriptionNotifyStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
     private final RestTemplate restTemplate;
-    private final StepLoggingListener stepLoggingListener;
     private final NotifyRenewalOfSubscriptionItemReadListener itemReadListener;
     private final NotifyRenewalOfSubscriptionItemWriteListener itemWriteListener;
 
@@ -65,7 +63,6 @@ public class RenewalOfSubscriptionNotifyStep {
                 .<NotifyRenewalOfSubscriptionDto, NotifyRenewalOfSubscriptionDto>chunk(CHUNK_SIZE)
                 .reader(notifyRenewalOfSubscriptionItemReader(null, null))
                 .writer(notifyRenewalOfSubscriptionItemWriter(null))
-                .listener(stepLoggingListener)
                 .listener(itemReadListener)
                 .listener(itemWriteListener)
                 .build();
