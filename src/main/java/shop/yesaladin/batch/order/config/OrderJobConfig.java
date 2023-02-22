@@ -7,9 +7,10 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import shop.yesaladin.batch.batch.listener.JobLoggingListener;
 
 /**
- * Spring Batch Order Job 설정 입니다.
+ * Spring Batch Job 설정 입니다.
  *
  * @author 이수정
  * @since 1.0
@@ -36,6 +37,23 @@ public class OrderJobConfig {
         return jobBuilderFactory
                 .get("insertOrderStatusChangeLogJob")
                 .start(insertOrderStatusChangeLogStep)
+                .listener(jobLoggingListener)
+                .build();
+    }
+
+    /**
+     * 구독이 만료되는 1달 전 부터 구독 갱신을 위한 알림을 보내는 Step 을 수행하는 Job 입니다.
+     *
+     * @return notifyRenewalOfSubscriptionStep 을 실행하는 Job
+     * @author 이수정
+     * @since 1.0
+     */
+    @Bean
+    public Job notifyRenewalOfSubscriptionJob() {
+        return jobBuilderFactory
+                .get("notifyRenewalOfSubscriptionJob")
+                .start(notifyRenewalOfSubscriptionStep)
+                .listener(jobLoggingListener)
                 .build();
     }
 
