@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.batch.step;
+package shop.yesaladin.batch.order.step;
 
 import com.nhn.dooray.client.DoorayHook;
 import com.nhn.dooray.client.DoorayHookSender;
@@ -19,8 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import shop.yesaladin.batch.batch.dto.NotifyRenewalOfSubscriptionDto;
-import shop.yesaladin.batch.batch.mapper.NotifyRenewalOfSubscriptionDtoMapper;
+import shop.yesaladin.batch.order.dto.NotifyRenewalOfSubscriptionDto;
+import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionListener;
+import shop.yesaladin.batch.order.mapper.NotifyRenewalOfSubscriptionDtoMapper;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -40,12 +41,13 @@ public class RenewalOfSubscriptionNotifyStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
     private final RestTemplate restTemplate;
+    private final NotifyRenewalOfSubscriptionListener listener;
 
     private static final String DOORAY_HOOK_URL = "https://hook.dooray.com/services/3204376758577275363/3472093162960357708/YOuBRWeZSPWxAbv8s5kAZg";
     private static final int CHUNK_SIZE = 100;
 
     /**
-     * DB 정기 구독에서 다음 갱신일이 1달/ 1주일/ 3일/ 하루 남은 정기구독, 정기구독자를 조회하고 (ItemReader),
+     * DB 정기 구독에서 다음 갱신일이 1달/ 1주일/ 하루 남은 정기구독, 정기구독자를 조회하고 (ItemReader),
      * 조회된 정기구독자를 대상으로 알림을 보냅니다. (ItemWriter)
      *
      * @return 지정된 ItemReader, ItemWriter 를 가진 Step
@@ -59,6 +61,7 @@ public class RenewalOfSubscriptionNotifyStep {
                 .<NotifyRenewalOfSubscriptionDto, NotifyRenewalOfSubscriptionDto>chunk(CHUNK_SIZE)
                 .reader(notifyRenewalOfSubscriptionItemReader(null, null))
                 .writer(notifyRenewalOfSubscriptionItemWriter(null))
+                .listener(listener)
                 .build();
     }
 
@@ -137,15 +140,30 @@ public class RenewalOfSubscriptionNotifyStep {
             for (NotifyRenewalOfSubscriptionDto item : items) {
                 String text = item.getName() + "(" + item.getLoginId() + ")님, 구독하신 상품 [" + item.getTitle() + "]의 구독갱신까지 "
                         + remainingDate + " 남았습니다. " + item.getNextRenewalDate() + "에 구독(" + item.getIntervalMonth() + "개월)이 갱신됩니다.";
-                log.info("text = {}", text);
 
-                new DoorayHookSender(restTemplate, DOORAY_HOOK_URL)
-                        .send(DoorayHook.builder()
-                                .botName("구독 갱신 알림봇")
-                                .text(text)
-                                .build());
-                Thread.sleep(1000);
+                sendDoorayHook(text);
             }
         };
     }
+
+    /**
+     * DoorayHookSender를 통해 구독 갱신 알림을 보내고, 예외발생 시 보내지 못한 담아 로그를 남깁니다.
+     *
+     * @param text 알림메세지
+     * @author 이수정
+     * @since 1.0
+     */
+    private void sendDoorayHook(String text) {
+        try {
+            new DoorayHookSender(restTemplate, DOORAY_HOOK_URL)
+                    .send(DoorayHook.builder()
+                            .botName("구독 갱신 알림봇")
+                            .text(text)
+                            .build());
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            log.error("Send Failed = " + text);
+        }
+    }
+
 }

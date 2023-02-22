@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.config;
+package shop.yesaladin.batch.order.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -9,19 +9,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Spring Batch 설정 입니다.
+ * Spring Batch Job 설정 입니다.
  *
- * @author 서민지
  * @author 이수정
  * @since 1.0
  */
 @RequiredArgsConstructor
 @EnableBatchProcessing
 @Configuration
-public class JobConfig {
+public class OrderJobConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
-
     private final Step insertOrderStatusChangeLogStep;
     private final Step notifyRenewalOfSubscriptionStep;
 
@@ -55,4 +53,5 @@ public class JobConfig {
                 .start(notifyRenewalOfSubscriptionStep)
                 .build();
     }
+
 }
