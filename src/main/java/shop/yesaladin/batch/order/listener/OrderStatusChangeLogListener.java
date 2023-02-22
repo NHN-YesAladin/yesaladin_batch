@@ -9,7 +9,7 @@ import shop.yesaladin.batch.order.dto.OrderStatusChangeLogDto;
 import java.util.List;
 
 /**
- * orderStatusChangeLog 실행 시 생기는 예외에 대해 로그를 작성하는 Listener 입니다.
+ * orderStatusChangeLogListener 실행 시 생기는 예외에 대해 로그를 작성하는 Listener 입니다.
  *
  * @author 이수정
  * @since 1.0
