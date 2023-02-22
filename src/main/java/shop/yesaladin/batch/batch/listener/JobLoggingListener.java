@@ -19,11 +19,21 @@ public class JobLoggingListener {
     private static final String START_MESSAGE = "Job %s is beginning execution.";
     private static final String END_MESSAGE = "Job %s has completed with the status %s.";
 
+    /**
+     * 잡 실행 시작시 로그를 작성합니다.
+     *
+     * @param jobExecution 실행되는 잡의 execution
+     */
     @BeforeJob
     public void beforeJob(JobExecution jobExecution) {
         log.info(String.format(START_MESSAGE, jobExecution.getJobInstance().getJobName()));
     }
 
+    /**
+     * 잡 실행 종료시 로그를 작성합니다.
+     *
+     * @param jobExecution 실행되는 잡의 execution
+     */
     @AfterJob
     public void afterJob(JobExecution jobExecution) {
         log.info(String.format(

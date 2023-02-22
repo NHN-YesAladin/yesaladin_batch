@@ -19,11 +19,21 @@ public class StepLoggingListener {
     private static final String START_MESSAGE = "Step %s is beginning execution.";
     private static final String END_MESSAGE = "Step %s has completed with the status %s.";
 
+    /**
+     * 스텝 실행 시작시 로그를 작성합니다.
+     *
+     * @param stepExecution 실행되는 스텝 execution
+     */
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
         log.info(String.format(START_MESSAGE, stepExecution.getStepName()));
     }
 
+    /**
+     * 스텝 실행 종료시 로그를 작성합니다.
+     *
+     * @param stepExecution 실행되는 스텝 execution
+     */
     @AfterStep
     public void afterStep(StepExecution stepExecution) {
         log.info(String.format(
