@@ -8,7 +8,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,7 +57,7 @@ public class BirthdayCouponStep {
      */
     @Bean
     @StepScope
-    public ItemReader<MemberDto> listItemReader(@Value("#{jobParameters['laterDays']}") Integer laterDays) {
+    public ListItemReader<MemberDto> listItemReader(@Value("#{jobParameters['laterDays']}") Integer laterDays) {
         resetCurrentIndex();
         List<MemberDto> memberIdList = getBirthdayMemberList(laterDays);
         if (memberIdList.isEmpty()) {
