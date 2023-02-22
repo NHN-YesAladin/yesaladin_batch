@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.batch.step;
+package shop.yesaladin.batch.order.step;
 
 import com.nhn.dooray.client.DoorayHook;
 import com.nhn.dooray.client.DoorayHookSender;
@@ -19,9 +19,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import shop.yesaladin.batch.batch.dto.NotifyRenewalOfSubscriptionDto;
 import shop.yesaladin.batch.batch.listener.StepLoggingListener;
-import shop.yesaladin.batch.batch.mapper.NotifyRenewalOfSubscriptionDtoMapper;
+import shop.yesaladin.batch.order.dto.NotifyRenewalOfSubscriptionDto;
+import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionItemReadListener;
+import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionItemWriteListener;
+import shop.yesaladin.batch.order.mapper.NotifyRenewalOfSubscriptionDtoMapper;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -42,6 +44,8 @@ public class RenewalOfSubscriptionNotifyStep {
     private final DataSource dataSource;
     private final RestTemplate restTemplate;
     private final StepLoggingListener stepLoggingListener;
+    private final NotifyRenewalOfSubscriptionItemReadListener itemReadListener;
+    private final NotifyRenewalOfSubscriptionItemWriteListener itemWriteListener;
 
     private static final String DOORAY_HOOK_URL = "https://hook.dooray.com/services/3204376758577275363/3472093162960357708/YOuBRWeZSPWxAbv8s5kAZg";
     private static final int CHUNK_SIZE = 100;
@@ -62,6 +66,8 @@ public class RenewalOfSubscriptionNotifyStep {
                 .reader(notifyRenewalOfSubscriptionItemReader(null, null))
                 .writer(notifyRenewalOfSubscriptionItemWriter(null))
                 .listener(stepLoggingListener)
+                .listener(itemReadListener)
+                .listener(itemWriteListener)
                 .build();
     }
 
@@ -147,7 +153,7 @@ public class RenewalOfSubscriptionNotifyStep {
     }
 
     /**
-     * DoorayHookSender를 통해 구독 갱신 알림을 보내고, 예외발생 시 메세지를 보내지 못한
+     * DoorayHookSender를 통해 구독 갱신 알림을 보내고, 예외발생 시 보내지 못한 담아 로그를 남깁니다.
      *
      * @param text 알림메세지
      * @author 이수정

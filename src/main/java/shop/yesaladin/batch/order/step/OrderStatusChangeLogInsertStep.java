@@ -16,9 +16,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.batch.dto.OrderStatusChangeLogDto;
 import shop.yesaladin.batch.batch.listener.StepLoggingListener;
-import shop.yesaladin.batch.batch.mapper.OrderStatusChangeLogDtoRowMapper;
+import shop.yesaladin.batch.order.dto.OrderStatusChangeLogDto;
+import shop.yesaladin.batch.order.listener.OrderStatusChangeLogItemReadListener;
+import shop.yesaladin.batch.order.listener.OrderStatusChangeLogItemWriteListener;
+import shop.yesaladin.batch.order.mapper.OrderStatusChangeLogDtoRowMapper;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -38,6 +40,9 @@ public class OrderStatusChangeLogInsertStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
     private final StepLoggingListener stepLoggingListener;
+    private final OrderStatusChangeLogItemReadListener itemReadListener;
+    private final OrderStatusChangeLogItemWriteListener itemWriteListener;
+
     private static final int CHUNK_SIZE = 100;
 
     /**
@@ -55,6 +60,9 @@ public class OrderStatusChangeLogInsertStep {
                 .<OrderStatusChangeLogDto, OrderStatusChangeLogDto>chunk(CHUNK_SIZE)
                 .reader(orderStatusChangeLogItemReader(null, null))
                 .writer(orderStatusChangeLogItemWriter(null))
+                .listener(stepLoggingListener)
+                .listener(itemReadListener)
+                .listener(itemWriteListener)
                 .faultTolerant()
                 .retry(Exception.class)
                 .noRetry(SQLException.class)
