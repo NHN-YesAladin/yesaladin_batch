@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.scheduler;
+package shop.yesaladin.batch.order.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

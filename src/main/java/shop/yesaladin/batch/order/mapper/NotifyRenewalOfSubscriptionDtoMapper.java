@@ -1,7 +1,7 @@
-package shop.yesaladin.batch.batch.mapper;
+package shop.yesaladin.batch.order.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
-import shop.yesaladin.batch.batch.dto.NotifyRenewalOfSubscriptionDto;
+import shop.yesaladin.batch.order.dto.NotifyRenewalOfSubscriptionDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
