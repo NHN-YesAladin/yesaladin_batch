@@ -7,7 +7,6 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.batch.listener.JobLoggingListener;
 
 /**
  * Spring Batch Job 설정 입니다.
@@ -37,7 +36,6 @@ public class OrderJobConfig {
         return jobBuilderFactory
                 .get("insertOrderStatusChangeLogJob")
                 .start(insertOrderStatusChangeLogStep)
-                .listener(jobLoggingListener)
                 .build();
     }
 
@@ -53,7 +51,6 @@ public class OrderJobConfig {
         return jobBuilderFactory
                 .get("notifyRenewalOfSubscriptionJob")
                 .start(notifyRenewalOfSubscriptionStep)
-                .listener(jobLoggingListener)
                 .build();
     }
 
