@@ -1,5 +1,8 @@
 package shop.yesaladin.batch.member.step;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -13,14 +16,11 @@ import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuild
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import shop.yesaladin.batch.member.dto.MemberPointDto;
-import shop.yesaladin.batch.batch.listener.StepLoggingListener;
+import shop.yesaladin.batch.member.listener.MemberPointUpdateListener;
 import shop.yesaladin.batch.member.model.MemberGrade;
-
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 매월 1일 지난달 주문 금액에 따라 변경된 회원 등급을 참조하여 회원 등급별 포인트를 지급하는 Batch Step 입니다.
@@ -33,7 +33,7 @@ import java.util.Map;
 public class MemberPointUpdateStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
-    private final StepLoggingListener stepLoggingListener;
+    private final MemberPointUpdateListener memberPointUpdateListener;
     private static final int CHUNK_SIZE = 100;
     private final int minMemberGradeId = MemberGrade.WHITE.getId();
 
@@ -104,7 +104,10 @@ public class MemberPointUpdateStep {
                 .<MemberPointDto, MemberPointDto>chunk(CHUNK_SIZE)
                 .reader(memberPointDtoItemReader())
                 .writer(insertPointHistoryItemWriter())
-                .listener(stepLoggingListener)
+                .faultTolerant()
+                .retry(DeadlockLoserDataAccessException.class)
+                .retryLimit(3)
+                .listener(memberPointUpdateListener)
                 .build();
     }
 }

@@ -1,5 +1,8 @@
 package shop.yesaladin.batch.member.scheduler;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -12,11 +15,6 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 /**
  * 회원 등급을 관리하는 Job 의 스케줄러 입니다.
@@ -51,9 +49,7 @@ public class MemberGradeScheduler {
             jobLauncher.run(updateMemberJob, jobParameters);
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException | JobRestartException e) {
-            log.error(e.getMessage());
+            log.error("", e);
         }
-
-        log.info("=== updateMemberGrade schedule ended at {} ===", LocalDateTime.now());
     }
 }
