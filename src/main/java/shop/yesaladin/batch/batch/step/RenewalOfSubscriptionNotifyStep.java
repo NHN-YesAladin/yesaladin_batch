@@ -141,12 +141,19 @@ public class RenewalOfSubscriptionNotifyStep {
                 String text = item.getName() + "(" + item.getLoginId() + ")님, 구독하신 상품 [" + item.getTitle() + "]의 구독갱신까지 "
                         + remainingDate + " 남았습니다. " + item.getNextRenewalDate() + "에 구독(" + item.getIntervalMonth() + "개월)이 갱신됩니다.";
 
-                sendDoorayHook(item, text);
+                sendDoorayHook(text);
             }
         };
     }
 
-    private void sendDoorayHook(NotifyRenewalOfSubscriptionDto item, String text) {
+    /**
+     * DoorayHookSender를 통해 구독 갱신 알림을 보내고, 예외발생 시 메세지를 보내지 못한
+     *
+     * @param text 알림메세지
+     * @author 이수정
+     * @since 1.0
+     */
+    private void sendDoorayHook(String text) {
         try {
             new DoorayHookSender(restTemplate, DOORAY_HOOK_URL)
                     .send(DoorayHook.builder()
@@ -155,7 +162,7 @@ public class RenewalOfSubscriptionNotifyStep {
                             .build());
             Thread.sleep(1000);
         } catch (Exception e) {
-            log.error("retry = " + item.getLoginId());
+            log.error("Send Failed = " + text);
         }
     }
 
