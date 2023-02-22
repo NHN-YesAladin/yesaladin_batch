@@ -1,8 +1,5 @@
 package shop.yesaladin.batch.order.step;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -20,8 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import shop.yesaladin.batch.order.dto.OrderStatusChangeLogDto;
-import shop.yesaladin.batch.order.listener.OrderStatusChangeLogItemReadListener;
-import shop.yesaladin.batch.order.listener.OrderStatusChangeLogItemWriteListener;
+import shop.yesaladin.batch.order.listener.OrderStatusChangeLogListener;
 import shop.yesaladin.batch.order.mapper.OrderStatusChangeLogDtoRowMapper;
 
 import javax.sql.DataSource;
@@ -41,8 +37,7 @@ public class OrderStatusChangeLogInsertStep {
 
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
-    private final OrderStatusChangeLogItemReadListener itemReadListener;
-    private final OrderStatusChangeLogItemWriteListener itemWriteListener;
+    private final OrderStatusChangeLogListener listener;
 
     private static final int CHUNK_SIZE = 100;
 
@@ -61,8 +56,7 @@ public class OrderStatusChangeLogInsertStep {
                 .<OrderStatusChangeLogDto, OrderStatusChangeLogDto>chunk(CHUNK_SIZE)
                 .reader(orderStatusChangeLogItemReader(null, null))
                 .writer(orderStatusChangeLogItemWriter(null))
-                .listener(itemReadListener)
-                .listener(itemWriteListener)
+                .listener(listener)
                 .faultTolerant()
                 .retry(Exception.class)
                 .noRetry(SQLException.class)

@@ -20,8 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import shop.yesaladin.batch.order.dto.NotifyRenewalOfSubscriptionDto;
-import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionItemReadListener;
-import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionItemWriteListener;
+import shop.yesaladin.batch.order.listener.NotifyRenewalOfSubscriptionListener;
 import shop.yesaladin.batch.order.mapper.NotifyRenewalOfSubscriptionDtoMapper;
 
 import javax.sql.DataSource;
@@ -42,8 +41,7 @@ public class RenewalOfSubscriptionNotifyStep {
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
     private final RestTemplate restTemplate;
-    private final NotifyRenewalOfSubscriptionItemReadListener itemReadListener;
-    private final NotifyRenewalOfSubscriptionItemWriteListener itemWriteListener;
+    private final NotifyRenewalOfSubscriptionListener listener;
 
     private static final String DOORAY_HOOK_URL = "https://hook.dooray.com/services/3204376758577275363/3472093162960357708/YOuBRWeZSPWxAbv8s5kAZg";
     private static final int CHUNK_SIZE = 100;
@@ -63,8 +61,7 @@ public class RenewalOfSubscriptionNotifyStep {
                 .<NotifyRenewalOfSubscriptionDto, NotifyRenewalOfSubscriptionDto>chunk(CHUNK_SIZE)
                 .reader(notifyRenewalOfSubscriptionItemReader(null, null))
                 .writer(notifyRenewalOfSubscriptionItemWriter(null))
-                .listener(itemReadListener)
-                .listener(itemWriteListener)
+                .listener(listener)
                 .build();
     }
 

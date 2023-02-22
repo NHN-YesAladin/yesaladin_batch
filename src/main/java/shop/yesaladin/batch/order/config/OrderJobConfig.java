@@ -54,18 +54,4 @@ public class OrderJobConfig {
                 .build();
     }
 
-    /**
-     * 구독이 만료되는 1달 전 부터 구독 갱신을 위한 알림을 보내는 Step 을 수행하는 Job 입니다.
-     *
-     * @return notifyRenewalOfSubscriptionStep 을 실행하는 Job
-     * @author 이수정
-     * @since 1.0
-     */
-    @Bean
-    public Job notifyRenewalOfSubscriptionJob() {
-        return jobBuilderFactory
-                .get("notifyRenewalOfSubscriptionJob")
-                .start(notifyRenewalOfSubscriptionStep)
-                .build();
-    }
 }
