@@ -7,7 +7,6 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import shop.yesaladin.batch.batch.listener.JobLoggingListener;
 
 /**
  * Spring Batch Job 설정 입니다.
@@ -23,7 +22,6 @@ public class OrderJobConfig {
     private final JobBuilderFactory jobBuilderFactory;
     private final Step insertOrderStatusChangeLogStep;
     private final Step notifyRenewalOfSubscriptionStep;
-    private final JobLoggingListener jobLoggingListener;
 
     /**
      * 주문 상태 변경 이력 테이블에 기록된 가장 최근 상태가 주문(ORDER)인 채로 3일이 지난 주문을 대상으로,
@@ -38,7 +36,6 @@ public class OrderJobConfig {
         return jobBuilderFactory
                 .get("insertOrderStatusChangeLogJob")
                 .start(insertOrderStatusChangeLogStep)
-                .listener(jobLoggingListener)
                 .build();
     }
 
@@ -54,7 +51,6 @@ public class OrderJobConfig {
         return jobBuilderFactory
                 .get("notifyRenewalOfSubscriptionJob")
                 .start(notifyRenewalOfSubscriptionStep)
-                .listener(jobLoggingListener)
                 .build();
     }
 }
