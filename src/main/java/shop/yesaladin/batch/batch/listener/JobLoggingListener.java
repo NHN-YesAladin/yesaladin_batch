@@ -6,6 +6,12 @@ import org.springframework.batch.core.annotation.AfterJob;
 import org.springframework.batch.core.annotation.BeforeJob;
 import org.springframework.stereotype.Component;
 
+/**
+ * Job 실행 시작과 끝에 로그를 작성하는 리스너입니다.
+ *
+ * @author 서민지
+ * @since 1.0
+ */
 @Slf4j
 @Component
 public class JobLoggingListener {

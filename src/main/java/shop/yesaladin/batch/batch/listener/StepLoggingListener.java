@@ -6,6 +6,12 @@ import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.stereotype.Component;
 
+/**
+ * Step 실행 시작과 끝에 로그를 작성하는 리스너입니다.
+ *
+ * @author 서민지
+ * @since 1.0
+ */
 @Slf4j
 @Component
 public class StepLoggingListener {
