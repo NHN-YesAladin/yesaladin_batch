@@ -29,7 +29,7 @@ YesAladin Batch는 Spring Batch와 Spring Scheduler를 사용하여 Yesaladin �
 
 ## Project Architecture
 
-![스크린샷 2023-02-21 오후 11 33 40](https://user-images.githubusercontent.com/60968342/220375548-a25de61d-993b-41e9-a638-40c68edfa10a.png)
+<img width="1055" alt="스크린샷 2023-02-22 오전 10 15 46" src="https://user-images.githubusercontent.com/60968342/220496124-61dc2fb4-a423-4ce6-ad5a-d8afec4b2600.png">
 
 ## Technical Issue
 
