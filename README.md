@@ -35,6 +35,10 @@ YesAladin Batch는 Spring Batch와 Spring Scheduler를 사용하여 Yesaladin �
 
 <img width="1055" alt="스크린샷 2023-02-22 오전 10 15 46" src="https://user-images.githubusercontent.com/60968342/220496124-61dc2fb4-a423-4ce6-ad5a-d8afec4b2600.png">
 
+## CI/CD
+
+<img width="1102" alt="스크린샷 2023-02-22 오후 7 24 08" src="https://user-images.githubusercontent.com/60968342/220593590-58f50bd3-302f-455d-bf99-78371b2a1ba7.png">
+
 ## Technical Issue
 
 ### (있다면 작성해주시고 없으면 Technical Issue는 지우셔도 됩니다.)
