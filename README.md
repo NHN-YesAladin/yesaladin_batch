@@ -9,14 +9,18 @@ YesAladin Batch는 Spring Batch와 Spring Scheduler를 사용하여 Yesaladin �
 ## Features
 ### [@서민지](https://github.com/narangd0)
 
-- 매월 1일 전달 주문 금액 산정을 통한 회원 등급 갱신
-  - Shop 데이터베이스에 접근하여 회원의 전달 순수 주문 금액 계산 처리 후 등급 갱신
-  - CompositeItemWriter를 사용한 회원 등급 갱신/등급 갱신 내역에 대한 복합적인 쓰기 작업 수행
-- 회원 등급에 따른 포인트 지급
-- 생일 회원에게 쿠폰 지급
-  - Shop/Coupon 서버와의 api call을 통한 생일 회원 조회/쿠폰 지급 처리
-- NHN Cloud Log & Crash 연동을 통해 모니터링 환경 구축
-- Spring Cloud Config 연동을 통해 설정 정보 외부화
+- **회원 등급 갱신**
+  - 매월 1일 전달 주문 금액 산정 후 회원 등급 갱신
+    - Shop Database에 접근하여 읽기/처리/쓰기 작업 수행
+    - CompositeItemWriter를 사용한 회원 등급 갱신/등급 갱신 내역에 대한 복합적인 쓰기 작업 수행
+- **포인트 지급**
+  - 매월 1일 갱신된 등급에 따른 포인트 지급 및 포인트 내역 작성
+- **생일 쿠폰 지급**
+  - 매일 7일 후 생일인 회원에게 쿠폰 자동 발행
+    - Shop, Coupon 서버와의 API 통신을 통한 생일 회원 조회/쿠폰 지급 처리
+- **Project Management**
+  - NHN Cloud Log & Crash 연동을 통해 모니터링 환경 구축
+  - Spring Cloud Config 연동을 통해 설정 정보 외부화
 
 ### [@이수정](https://github.com/sujeong68)
 
