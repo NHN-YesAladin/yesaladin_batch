@@ -1,5 +1,6 @@
-package shop.yesaladin.batch.scheduler;
+package shop.yesaladin.batch.member.scheduler;
 
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -12,9 +13,6 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * 생일 쿠폰 지급 Job 의 스케줄러 입니다.
@@ -37,8 +35,6 @@ public class BirthdayCouponScheduler {
      */
     @Scheduled(cron = ONE_AM_EVERY_DAY, zone = "Asia/Seoul")
     public void scheduleGiveBirthdayCoupon() {
-        log.info("=== giveBirthdayCoupon schedule started at {} ===", LocalDateTime.now());
-
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("laterDays", String.valueOf(LATER_DAYS))
                 .addDate("currentDate", new Date())
@@ -50,7 +46,5 @@ public class BirthdayCouponScheduler {
                  JobParametersInvalidException | JobRestartException e) {
             log.error(e.getMessage());
         }
-
-        log.info("=== giveBirthdayCoupon schedule ended at {} ===", LocalDateTime.now());
     }
 }

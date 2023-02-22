@@ -1,6 +1,6 @@
-package shop.yesaladin.batch.batch.converter;
+package shop.yesaladin.batch.member.converter;
 
-import shop.yesaladin.batch.batch.model.MemberGrade;
+import shop.yesaladin.batch.member.model.MemberGrade;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

@@ -1,5 +1,7 @@
-package shop.yesaladin.batch.batch.step;
+package shop.yesaladin.batch.member.step;
 
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
@@ -13,20 +15,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import shop.yesaladin.batch.batch.dto.CouponRequestDto;
-import shop.yesaladin.batch.batch.dto.CouponResponseDto;
-import shop.yesaladin.batch.batch.dto.MemberCouponRequestDto;
-import shop.yesaladin.batch.batch.dto.MemberDto;
+import shop.yesaladin.batch.member.dto.CouponRequestDto;
+import shop.yesaladin.batch.member.dto.CouponResponseDto;
+import shop.yesaladin.batch.member.dto.MemberCouponRequestDto;
+import shop.yesaladin.batch.member.dto.MemberDto;
+import shop.yesaladin.batch.batch.listener.StepLoggingListener;
 import shop.yesaladin.batch.config.ServerMetaConfig;
 import shop.yesaladin.common.dto.ResponseDto;
 import shop.yesaladin.coupon.trigger.TriggerTypeCode;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Shop 과 Coupon 서버의 API 통신을 통해 생일인 회원에게 생일 쿠폰을 발급하는 Batch Step 입니다.
@@ -43,6 +46,7 @@ public class BirthdayCouponStep {
     private final RestTemplate restTemplate;
     private final ServerMetaConfig serverMetaConfig;
     private List<CouponResponseDto> couponResponseDtoList;
+    private final StepLoggingListener stepLoggingListener;
     private int currentIndex = 0;
     private static final int CHUNK_SIZE = 500;
 
@@ -105,6 +109,7 @@ public class BirthdayCouponStep {
                 .reader(listItemReader(null))
                 .processor(itemProcessor())
                 .writer(itemWriter())
+                .listener(stepLoggingListener)
                 .build();
     }
 
@@ -114,19 +119,20 @@ public class BirthdayCouponStep {
      * @param quantity 요청하는 수량
      */
     private void requestBirthdayCoupon(int quantity) {
-        CouponRequestDto couponRequestDto = new CouponRequestDto(TriggerTypeCode.BIRTHDAY,
+        CouponRequestDto couponRequestDto = new CouponRequestDto(
+                TriggerTypeCode.BIRTHDAY,
                 quantity
         );
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<CouponRequestDto> request = new HttpEntity<>(
-                couponRequestDto,
-                headers
-        );
+        HttpEntity<CouponRequestDto> request = new HttpEntity<>(couponRequestDto, headers);
+        String uriString = UriComponentsBuilder.fromHttpUrl(serverMetaConfig.getCouponServerUrl())
+                .pathSegment("v1", "issuances")
+                .toUriString();
 
         ResponseEntity<ResponseDto<List<CouponResponseDto>>> response = restTemplate.exchange(
-                serverMetaConfig.getCouponServerUrl() + "/v1/issuances",
+                uriString,
                 HttpMethod.POST,
                 request,
                 new ParameterizedTypeReference<>() {
@@ -143,13 +149,14 @@ public class BirthdayCouponStep {
      * @return laterDays 후가 생일인 회원 목록
      */
     private List<MemberDto> getBirthdayMemberList(int laterDays) {
-        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(
-                        serverMetaConfig.getShopServerUrl() + "/v1/members")
+        String uriString = UriComponentsBuilder.fromHttpUrl(serverMetaConfig.getShopServerUrl())
+                .pathSegment("v1", "members")
                 .queryParam("type=birthday", (Object) null)
                 .queryParam("laterDays", laterDays)
-                .build();
+                .toUriString();
 
-        ResponseEntity<ResponseDto<List<MemberDto>>> responseEntity = restTemplate.exchange(uriComponents.toUri(),
+        ResponseEntity<ResponseDto<List<MemberDto>>> responseEntity = restTemplate.exchange(
+                uriString,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -171,8 +178,12 @@ public class BirthdayCouponStep {
                 items,
                 headers
         );
+        String uriString = UriComponentsBuilder.fromHttpUrl(serverMetaConfig.getShopServerUrl())
+                .pathSegment("v1", "coupons")
+                .toUriString();
 
-        restTemplate.exchange(serverMetaConfig.getShopServerUrl() + "/v1/coupons",
+        restTemplate.exchange(
+                uriString,
                 HttpMethod.POST,
                 request,
                 new ParameterizedTypeReference<>() {

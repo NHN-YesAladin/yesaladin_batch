@@ -1,4 +1,4 @@
-package shop.yesaladin.batch.scheduler;
+package shop.yesaladin.batch.member.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,15 +38,8 @@ public class MemberGradeScheduler {
      */
     @Scheduled(cron = TWO_AM_1ST_OF_EVERY_MONTH, zone = "Asia/Seoul")
     public void scheduleUpdateMemberGrade() {
-        log.info("=== updateMemberGrade schedule started at {} ===", LocalDateTime.now());
-
         LocalDate inquiryStartDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         LocalDate inquiryEndDate = LocalDate.now().withDayOfMonth(1);
-
-        log.info("=== updateMemberGrade schedule's inquiry period: {} - {}",
-                inquiryStartDate,
-                inquiryEndDate
-        );
 
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("startDate", inquiryStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
