@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Spring Batch Job 설정 입니다.
+ * Spring Batch Order Job 설정 입니다.
  *
  * @author 이수정
  * @since 1.0
