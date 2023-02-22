@@ -44,7 +44,7 @@ public class BirthdayCouponScheduler {
             jobLauncher.run(giveBirthdayCouponJob, jobParameters);
         } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException | JobRestartException e) {
-            log.error(e.getMessage());
+            log.error("", e);
         }
     }
 }

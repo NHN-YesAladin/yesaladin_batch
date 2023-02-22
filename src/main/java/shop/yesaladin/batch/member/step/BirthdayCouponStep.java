@@ -22,12 +22,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import shop.yesaladin.batch.config.ServerMetaConfig;
 import shop.yesaladin.batch.member.dto.CouponRequestDto;
 import shop.yesaladin.batch.member.dto.CouponResponseDto;
 import shop.yesaladin.batch.member.dto.MemberCouponRequestDto;
 import shop.yesaladin.batch.member.dto.MemberDto;
-import shop.yesaladin.batch.batch.listener.StepLoggingListener;
-import shop.yesaladin.batch.config.ServerMetaConfig;
+import shop.yesaladin.batch.member.listener.BirthdayCouponListener;
 import shop.yesaladin.common.dto.ResponseDto;
 import shop.yesaladin.coupon.trigger.TriggerTypeCode;
 
@@ -46,7 +46,7 @@ public class BirthdayCouponStep {
     private final RestTemplate restTemplate;
     private final ServerMetaConfig serverMetaConfig;
     private List<CouponResponseDto> couponResponseDtoList;
-    private final StepLoggingListener stepLoggingListener;
+    private final BirthdayCouponListener birthdayCouponListener;
     private int currentIndex = 0;
     private static final int CHUNK_SIZE = 500;
 
@@ -109,7 +109,12 @@ public class BirthdayCouponStep {
                 .reader(listItemReader(null))
                 .processor(itemProcessor())
                 .writer(itemWriter())
-                .listener(stepLoggingListener)
+                .faultTolerant()
+                .skip(IndexOutOfBoundsException.class)
+                .skipLimit(2)
+                .retry(NullPointerException.class)
+                .retryLimit(2)
+                .listener(birthdayCouponListener)
                 .build();
     }
 
@@ -150,8 +155,7 @@ public class BirthdayCouponStep {
      */
     private List<MemberDto> getBirthdayMemberList(int laterDays) {
         String uriString = UriComponentsBuilder.fromHttpUrl(serverMetaConfig.getShopServerUrl())
-                .pathSegment("v1", "members")
-                .queryParam("type=birthday", (Object) null)
+                .pathSegment("v1", "members", "birthday")
                 .queryParam("laterDays", laterDays)
                 .toUriString();
 

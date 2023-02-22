@@ -1,5 +1,9 @@
 package shop.yesaladin.batch.member.step;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -18,15 +22,11 @@ import org.springframework.batch.item.support.builder.CompositeItemWriterBuilder
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DeadlockLoserDataAccessException;
 import shop.yesaladin.batch.member.dto.MemberGradeDto;
-import shop.yesaladin.batch.batch.listener.StepLoggingListener;
+import shop.yesaladin.batch.member.listener.MemberGradeUpdateListener;
 import shop.yesaladin.batch.member.mapper.MemberGradeDtoRowMapper;
 import shop.yesaladin.batch.member.model.MemberGrade;
-
-import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 매월 1일 전체 회원을 대상으로 지난달 주문에 대한 회원별 주문 금액을 산정하여 회원의 등급을 수정하는 Batch Step 입니다.
@@ -40,7 +40,7 @@ public class MemberGradeUpdateStep {
 
     private final StepBuilderFactory stepBuilderFactory;
     private final DataSource dataSource;
-    private final StepLoggingListener stepLoggingListener;
+    private final MemberGradeUpdateListener memberGradeUpdateListener;
     private static final int CHUNK_SIZE = 100;
 
     /**
@@ -105,25 +105,8 @@ public class MemberGradeUpdateStep {
     public ItemProcessor<MemberGradeDto, MemberGradeDto> memberGradeDtoItemProcessor() {
         return item -> {
             item.updateMemberGrade(getMemberGradeId(item.getPayAmount()));
-
             return item;
         };
-    }
-
-    public int getMemberGradeId(Long payAmount) {
-        MemberGrade memberGrade = MemberGrade.PLATINUM;
-
-        if (payAmount < MemberGrade.BRONZE.getBaseOrderAmount()) {
-            memberGrade = MemberGrade.WHITE;
-        } else if (payAmount < MemberGrade.SILVER.getBaseOrderAmount()) {
-            memberGrade = MemberGrade.BRONZE;
-        } else if (payAmount < MemberGrade.GOLD.getBaseOrderAmount()) {
-            memberGrade = MemberGrade.SILVER;
-        } else if (payAmount < MemberGrade.PLATINUM.getBaseOrderAmount()) {
-            memberGrade = MemberGrade.GOLD;
-        }
-
-        return memberGrade.getId();
     }
 
     /**
@@ -183,7 +166,26 @@ public class MemberGradeUpdateStep {
                 .reader(memberGradeDtoItemReader(null, null))
                 .processor(memberGradeDtoItemProcessor())
                 .writer(compositeItemWriter())
-                .listener(stepLoggingListener)
+                .faultTolerant()
+                .retry(DeadlockLoserDataAccessException.class)
+                .retryLimit(3)
+                .listener(memberGradeUpdateListener)
                 .build();
+    }
+
+    public int getMemberGradeId(Long payAmount) {
+        MemberGrade memberGrade = MemberGrade.PLATINUM;
+
+        if (payAmount < MemberGrade.BRONZE.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.WHITE;
+        } else if (payAmount < MemberGrade.SILVER.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.BRONZE;
+        } else if (payAmount < MemberGrade.GOLD.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.SILVER;
+        } else if (payAmount < MemberGrade.PLATINUM.getBaseOrderAmount()) {
+            memberGrade = MemberGrade.GOLD;
+        }
+
+        return memberGrade.getId();
     }
 }
